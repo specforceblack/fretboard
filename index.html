@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fretboard</title>
-<script src="config.js"><\/script>
+<script src="config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -445,7 +445,7 @@ async function loadNowPlaying(){
       document.getElementById('np-title').textContent='Nothing playing';
       document.getElementById('np-artist').textContent='Open Spotify and play something';
       document.getElementById('np-prog').style.width='0%';
-      document.getElementById('play-btn').textContent='\u25B6';
+      document.getElementById('play-btn').textContent='▶';
       return;
     }
     npData=d;
@@ -453,7 +453,7 @@ async function loadNowPlaying(){
     document.getElementById('np-title').textContent=t.name;
     document.getElementById('np-artist').textContent=t.artists.map(a=>a.name).join(', ')+' · '+t.album.name;
     document.getElementById('np-open').href=t.external_urls.spotify;
-    document.getElementById('play-btn').textContent=d.is_playing?'\u23F8':'\u25B6';
+    document.getElementById('play-btn').textContent=d.is_playing?'⏸':'▶';
     document.getElementById('share-now').textContent=t.name+' — '+t.artists[0].name;
     const img=t.album.images[0]?.url;
     const artEl=document.getElementById('np-art');
@@ -590,7 +590,7 @@ async function loadReverb(){
     const items=d.listings||[];
     el.innerHTML='<div class="reverb-grid">';
     items.slice(0,4).forEach(item=>{
-      const price=item.price?.amount_cents?'\u00A3'+(item.price.amount_cents/100).toFixed(0):'POA';
+      const price=item.price?.amount_cents?'£'+(item.price.amount_cents/100).toFixed(0):'POA';
       const img=item.photos?.[0]?.['_links']?.['large_crop']?.href||'';
       el.innerHTML+='<a class="reverb-item" href="'+esc(item._links?.web?.href||'#')+'" target="_blank"><div class="reverb-badge">Used</div>'+(img?'<img class="reverb-thumb" src="'+img+'" alt="">':'<div style="font-size:32px;margin-bottom:10px;">\uD83C\uDFB8</div>')+'<div class="reverb-name">'+esc(item.title)+'</div><div class="reverb-meta">'+esc(item.condition?.display_name||'')+'</div><div class="reverb-price">'+price+'</div></a>';
     });
@@ -767,7 +767,7 @@ async function studioRecord(){
 function studioPlay(){
   if(studioPlaying){studioStop();return;}
   studioPlaying=true;
-  document.getElementById('tp-play').textContent='\u23F8';
+  document.getElementById('tp-play').textContent='⏸';
   [0,1,2,3].forEach(i=>{
     if(audioURLs[i]&&!mutedTracks[i]){
       const a=new Audio(audioURLs[i]);
@@ -783,7 +783,7 @@ function studioPlay(){
 
 function studioStop(){
   studioPlaying=false;
-  document.getElementById('tp-play').textContent='\u25B6';
+  document.getElementById('tp-play').textContent='▶';
   audioEls.forEach(a=>{if(a){a.pause();a.currentTime=0;}});
   clearInterval(tpTimer);
   tpElapsed=0;
@@ -837,6 +837,6 @@ function timeAgo(date){
 }
 
 init();
-<\/script>
+</script>
 </body>
 </html>
