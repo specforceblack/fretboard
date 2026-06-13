@@ -160,6 +160,40 @@ nav{display:flex;align-items:center;padding:0 28px;height:58px;border-bottom:1px
 .saved-item{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface3);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:6px;}
 .saved-name{flex:1;font-size:13px;font-weight:500;}
 .saved-meta{font-size:11px;color:var(--text3);}
+
+.gear-carousel{display:flex;gap:20px;overflow-x:auto;padding:8px 4px 20px;scroll-snap-type:x mandatory;}
+.gear-carousel::-webkit-scrollbar{height:4px;}
+.gear-carousel::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px;}
+.gear-card{scroll-snap-align:start;flex-shrink:0;width:220px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s;}
+.gear-card:hover{border-color:var(--amber);transform:translateY(-2px);}
+.gear-card.add-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:280px;border-style:dashed;}
+.gear-card.add-card:hover{border-color:var(--amber);}
+.gear-img{width:100%;height:160px;object-fit:contain;background:var(--surface3);padding:12px;}
+.gear-img-placeholder{width:100%;height:160px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:48px;}
+.gear-info{padding:14px;}
+.gear-name{font-size:14px;font-weight:600;margin-bottom:3px;}
+.gear-meta{font-size:11px;color:var(--text3);}
+.gear-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+.gear-modal-box{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:32px;width:90%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative;}
+.gear-modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;}
+.gear-modal-close:hover{color:var(--text);}
+.gear-field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.gear-field label{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);}
+.gear-field input,.gear-field select,.gear-field textarea{background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;}
+.gear-field input:focus,.gear-field select:focus,.gear-field textarea:focus{border-color:var(--amber);}
+.gear-field input::placeholder,.gear-field textarea::placeholder{color:var(--text3);}
+.gear-field select option{background:var(--surface2);}
+.gear-detail-img{width:100%;max-height:280px;object-fit:contain;border-radius:var(--radius-sm);background:var(--surface3);margin-bottom:20px;padding:16px;cursor:pointer;}
+.gear-spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+.gear-spec{background:var(--surface3);border-radius:var(--radius-sm);padding:12px;}
+.gear-spec-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;}
+.gear-spec-val{font-size:13px;font-weight:500;color:var(--text);}
+.gear-btn-row{display:flex;gap:10px;margin-top:20px;}
+.gear-save-btn{flex:1;padding:12px;background:var(--amber);color:var(--ink);border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+.gear-save-btn:hover{opacity:.85;}
+.gear-del-btn{padding:12px 16px;background:var(--rose-dim);color:var(--rose);border:1px solid var(--rose);border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.gear-del-btn:hover{background:var(--rose);color:white;}
+.specs-loading{color:var(--text3);font-size:13px;text-align:center;padding:16px;}
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px;}
@@ -184,6 +218,7 @@ nav{display:flex;align-items:center;padding:0 28px;height:58px;border-bottom:1px
   <button class="nav-tab" onclick="switchTab('daily',this)">Daily</button>
   <button class="nav-tab" onclick="switchTab('studio',this)">Studio</button>
   <button class="nav-tab" onclick="switchTab('insights',this)">Insights</button>
+  <button class="nav-tab" onclick="switchTab('gear',this)">My Gear</button>
   <div class="nav-right">
     <div class="sp-badge"><div class="sp-dot pulse"></div><span id="sp-user">Spotify</span></div>
   </div>
@@ -348,6 +383,72 @@ nav{display:flex;align-items:center;padding:0 28px;height:58px;border-bottom:1px
   </div>
 </div></div>
 
+
+<div class="panel" id="tab-gear"><div class="page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:4px;">My Gear</div>
+      <div style="font-size:13px;color:var(--text3);">Your personal guitar collection</div>
+    </div>
+    <div style="font-size:12px;color:var(--text3);" id="gear-count">0 guitars</div>
+  </div>
+  <div class="gear-carousel" id="gear-carousel">
+    <div class="gear-card add-card" onclick="openAddGear()">
+      <div style="font-size:36px;color:var(--amber);">+</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text2);">Add a guitar</div>
+    </div>
+  </div>
+</div></div>
+
+<!-- GEAR ADD MODAL -->
+<div class="gear-modal" id="gear-add-modal" style="display:none;">
+  <div class="gear-modal-box">
+    <button class="gear-modal-close" onclick="closeGearModal('gear-add-modal')">&#x2715;</button>
+    <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:24px;">Add a guitar</div>
+    <div class="gear-field">
+      <label>Make &amp; Model</label>
+      <input id="g-model" placeholder="e.g. Fender Telecaster, Gibson Les Paul…">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="gear-field">
+        <label>Year</label>
+        <input id="g-year" placeholder="e.g. 1972">
+      </div>
+      <div class="gear-field">
+        <label>Colour</label>
+        <input id="g-colour" placeholder="e.g. Sunburst">
+      </div>
+    </div>
+    <div class="gear-field">
+      <label>Type</label>
+      <select id="g-type">
+        <option value="Electric">Electric</option>
+        <option value="Acoustic">Acoustic</option>
+        <option value="Semi-hollow">Semi-hollow</option>
+        <option value="Bass">Bass</option>
+        <option value="Classical">Classical</option>
+        <option value="12-string">12-string</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="gear-field">
+      <label>Notes (optional)</label>
+      <textarea id="g-notes" rows="2" placeholder="Mods, sentimental value, where you got it…" style="resize:vertical;"></textarea>
+    </div>
+    <div class="gear-btn-row">
+      <button class="gear-save-btn" onclick="saveGear()">Add to collection</button>
+    </div>
+  </div>
+</div>
+
+<!-- GEAR DETAIL MODAL -->
+<div class="gear-modal" id="gear-detail-modal" style="display:none;">
+  <div class="gear-modal-box">
+    <button class="gear-modal-close" onclick="closeGearModal('gear-detail-modal')">&#x2715;</button>
+    <div id="gear-detail-content"></div>
+  </div>
+</div>
+
 <script>
 if(typeof CONFIG==='undefined'){
   document.getElementById('login-screen').innerHTML='<div style="text-align:center;padding:40px;"><div style="font-family:Playfair Display,serif;font-size:36px;color:#f5a623;margin-bottom:16px;">fretboard</div><div style="color:#e8445a;font-size:14px;max-width:380px;line-height:1.8;">config.js not found. Make sure config.js is in the same folder as index.html and refresh.</div></div>';
@@ -414,7 +515,7 @@ async function getTokenFromCode(){
   const r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
   const d=await r.json();
   if(d.access_token){
-    if(d.refresh_token) sessionStorage.setItem('sp_refresh',d.refresh_token);
+    if(d.refresh_token) localStorage.setItem('sp_refresh',d.refresh_token);
     return d.access_token;
   }
   return null;
@@ -440,21 +541,21 @@ async function spPost(url,body){
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function init(){
   // Try existing token
-  token=sessionStorage.getItem('sp_token');
+  token=localStorage.getItem('sp_token');
   
   // Try code from redirect
   if(!token && window.location.search.includes('code=')){
     document.getElementById('login-screen').innerHTML='<div style="color:#a8a8b8;font-size:14px;">Connecting to Spotify…</div>';
     token=await getTokenFromCode();
     if(token){
-      sessionStorage.setItem('sp_token',token);
+      localStorage.setItem('sp_token',token);
       window.history.replaceState(null,null,window.location.pathname);
     }
   }
 
   // Try legacy hash token
   if(!token) token=getTokenFromHash();
-  if(token) sessionStorage.setItem('sp_token',token);
+  if(token) localStorage.setItem('sp_token',token);
 
   if(!token){
     document.getElementById('login-screen').style.display='flex';
@@ -482,6 +583,7 @@ async function loadAll(){
   renderRecordings();
   updateInsights();
   initWaveforms();
+  renderGearCarousel();
   npInterval=setInterval(loadNowPlaying,10000);
 }
 
