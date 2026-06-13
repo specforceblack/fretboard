@@ -384,10 +384,40 @@ const BGCOLORS=['linear-gradient(135deg,#2d1b69,#11998e)','linear-gradient(135de
 const DOTCOLORS=['var(--amber)','var(--blue)','var(--rose)','var(--green)'];
 
 // ── SPOTIFY AUTH ──────────────────────────────────────────────────────────────
-function spotifyLogin(){
+async function generateCodeVerifier(){
+  const arr=new Uint8Array(32);
+  crypto.getRandomValues(arr);
+  return btoa(String.fromCharCode(...arr)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+
+async function generateCodeChallenge(verifier){
+  const data=new TextEncoder().encode(verifier);
+  const digest=await crypto.subtle.digest('SHA-256',data);
+  return btoa(String.fromCharCode(...new Uint8Array(digest))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+
+async function spotifyLogin(){
   const scopes='user-read-currently-playing user-read-playback-state user-modify-playback-state user-top-read user-read-recently-played';
-  const params=new URLSearchParams({client_id:CONFIG.SPOTIFY_CLIENT_ID,response_type:'token',redirect_uri:CONFIG.SPOTIFY_REDIRECT_URI,scope:scopes,show_dialog:'false'});
+  const verifier=await generateCodeVerifier();
+  const challenge=await generateCodeChallenge(verifier);
+  sessionStorage.setItem('sp_verifier',verifier);
+  const params=new URLSearchParams({client_id:CONFIG.SPOTIFY_CLIENT_ID,response_type:'code',redirect_uri:CONFIG.SPOTIFY_REDIRECT_URI,scope:scopes,code_challenge_method:'S256',code_challenge:challenge});
   window.location='https://accounts.spotify.com/authorize?'+params.toString();
+}
+
+async function getTokenFromCode(){
+  const params=new URLSearchParams(window.location.search);
+  const code=params.get('code');
+  if(!code) return null;
+  const verifier=sessionStorage.getItem('sp_verifier');
+  const body=new URLSearchParams({grant_type:'authorization_code',code,redirect_uri:CONFIG.SPOTIFY_REDIRECT_URI,client_id:CONFIG.SPOTIFY_CLIENT_ID,code_verifier:verifier});
+  const r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
+  const d=await r.json();
+  if(d.access_token){
+    if(d.refresh_token) sessionStorage.setItem('sp_refresh',d.refresh_token);
+    return d.access_token;
+  }
+  return null;
 }
 
 function getTokenFromHash(){
@@ -409,10 +439,28 @@ async function spPost(url,body){
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function init(){
-  token=getTokenFromHash()||sessionStorage.getItem('sp_token');
-  if(!token){document.getElementById('login-screen').style.display='flex';return;}
-  sessionStorage.setItem('sp_token',token);
-  window.history.replaceState(null,null,' ');
+  // Try existing token
+  token=sessionStorage.getItem('sp_token');
+  
+  // Try code from redirect
+  if(!token && window.location.search.includes('code=')){
+    document.getElementById('login-screen').innerHTML='<div style="color:#a8a8b8;font-size:14px;">Connecting to Spotify…</div>';
+    token=await getTokenFromCode();
+    if(token){
+      sessionStorage.setItem('sp_token',token);
+      window.history.replaceState(null,null,window.location.pathname);
+    }
+  }
+
+  // Try legacy hash token
+  if(!token) token=getTokenFromHash();
+  if(token) sessionStorage.setItem('sp_token',token);
+
+  if(!token){
+    document.getElementById('login-screen').style.display='flex';
+    return;
+  }
+  window.history.replaceState(null,null,window.location.pathname);
   document.getElementById('login-screen').style.display='none';
   document.getElementById('main-nav').style.display='flex';
   loadAll();
