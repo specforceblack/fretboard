@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Fretboard</title>
 <script src="config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -17,6 +17,24 @@
   --blue:#4a9eff;--blue-dim:rgba(74,158,255,.12);
   --text:#f0eff4;--text2:#a8a8b8;--text3:#5c5c70;
   --radius:14px;--radius-sm:8px;--ink:#0e0e0f;
+}
+
+body{overflow-x:hidden;}
+@media(max-width:640px){
+  .page{padding:14px 12px 60px;}
+  .stats-strip{grid-template-columns:repeat(2,1fr);}
+  .insight-grid{grid-template-columns:repeat(2,1fr);}
+  nav{padding:0 10px;gap:3px;overflow-x:auto;}
+  .wordmark{font-size:17px;margin-right:6px;flex-shrink:0;}
+  .nav-tab{padding:5px 8px;font-size:11px;white-space:nowrap;}
+  .sp-badge{display:none;}
+  .np-hero{padding:16px;}
+  .np-title{font-size:17px;}
+  .two-col{grid-template-columns:1fr;}
+  .main-aside{grid-template-columns:1fr;}
+  .gear-modal-box{padding:18px;width:96%;max-height:95vh;}
+  .gear-spec-grid{grid-template-columns:1fr 1fr;}
+  .stat-num{font-size:22px;}
 }
 body{font-family:'Inter',sans-serif;background:var(--surface);color:var(--text);min-height:100vh;overflow-x:hidden;}
 #login-screen{position:fixed;inset:0;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px;}
@@ -307,10 +325,10 @@ nav{display:flex;align-items:center;padding:0 28px;height:58px;border-bottom:1px
     </div>
     <div class="two-col">
       <div class="card">
-        <div class="card-label">Tab of the day &middot; Open C tuning (C G C G C E)</div>
+        <div class="card-label">Tab of the day &middot; Open C tuning (C G C E G C)</div>
         <div style="font-size:15px;font-weight:600;margin-bottom:4px;" id="tab-title-d">—</div>
         <div style="font-size:12px;color:var(--text3);margin-bottom:14px;" id="tab-source-d">—</div>
-        <div class="tuning-badge">&#127928; Open C &middot; C G C G C E</div>
+        <div class="tuning-badge">&#127928; Open C &middot; C G C E G C</div>
         <div class="tab-display" id="tab-display-d">Loading…</div>
       </div>
       <div class="card">
@@ -466,9 +484,24 @@ let audioEls=[null,null,null,null];
 let topArtistNames=[];
 
 const TABS=[
-  {title:'Whisper riff',source:'Original — slow fingerpick in open C',tab:'<span class="tab-sl">e ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--||</span>\n<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>'},
-  {title:'Drone resolution',source:'Original — resolve on the 5th',tab:'<span class="tab-sl">e ||</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>'},
-  {title:'Rising fifth',source:'Original — 1-5-1-3-5-1 arpeggio in open C',tab:'<span class="tab-sl">e ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--</span><span class="tab-f">7</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--||</span>\n<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>'}
+  {title:'Whisper riff',source:'Original — slow fingerpick in open C',tab:'<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--||</span>
+<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--||</span>
+<span class="tab-sl">E ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>
+<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>
+<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--||</span>
+<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>'},
+  {title:'Drone resolution',source:'Original — resolve on the 5th',tab:'<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>
+<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>
+<span class="tab-sl">E ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>
+<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>
+<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--||</span>
+<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>'},
+  {title:'Rising fifth',source:'Original — 1-5-1-3-5-1 arpeggio in open C',tab:'<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--</span><span class="tab-f">7</span><span class="tab-l">--||</span>
+<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--||</span>
+<span class="tab-sl">E ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>
+<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>
+<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--||</span>
+<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>'}
 ];
 
 const LYRICS=[
@@ -630,7 +663,10 @@ async function spPrev(){await fetch('https://api.spotify.com/v1/me/player/previo
 // ── TOP ARTISTS ───────────────────────────────────────────────────────────────
 async function loadTopArtists(){
   try{
-    const d=await spFetch('https://api.spotify.com/v1/me/top/artists?limit=10&time_range=short_term');
+    let d=await spFetch('https://api.spotify.com/v1/me/top/artists?limit=10&time_range=short_term');
+    if(!d||!d.items||!d.items.length){
+      d=await spFetch('https://api.spotify.com/v1/me/top/artists?limit=10&time_range=medium_term');
+    }
     topArtistNames=d.items.map(a=>a.name);
     document.getElementById('s-artists').textContent=d.items.length;
     document.getElementById('ins-artists').textContent=d.items.length;
@@ -708,26 +744,45 @@ async function loadGigs(){
     const cities=['Brighton','London'];
     let allEvents=[];
     for(const city of cities){
-      const url='https://app.ticketmaster.com/discovery/v2/events.json?apikey='+CONFIG.TICKETMASTER_KEY+'&city='+city+'&classificationName=music&size=5&sort=date,asc&countryCode=GB';
-      const d=await fetch(url).then(r=>r.json());
+      const url='https://app.ticketmaster.com/discovery/v2/events.json?apikey='+CONFIG.TICKETMASTER_KEY+'&city='+encodeURIComponent(city)+'&classificationName=music&size=6&sort=date,asc&countryCode=GB&locale=*';
+      const r=await fetch(url);
+      if(!r.ok) throw new Error('TM '+r.status);
+      const d=await r.json();
       const evs=(d._embedded?.events||[]).map(e=>({...e,_city:city}));
       allEvents=allEvents.concat(evs);
     }
-    allEvents.sort((a,b)=>new Date(a.dates.start.dateTime)-new Date(b.dates.start.dateTime));
+    allEvents.sort((a,b)=>new Date(a.dates?.start?.dateTime||a.dates?.start?.localDate)-new Date(b.dates?.start?.dateTime||b.dates?.start?.localDate));
     el.innerHTML='';
-    if(!allEvents.length){el.innerHTML='<div class="empty-msg">No upcoming events found</div>';return;}
+    if(!allEvents.length){
+      el.innerHTML=buildGigFallback();
+      return;
+    }
     allEvents.slice(0,8).forEach(ev=>{
-      const dt=new Date(ev.dates.start.dateTime||ev.dates.start.localDate);
+      const raw=ev.dates?.start?.dateTime||ev.dates?.start?.localDate;
+      const dt=raw?new Date(raw):new Date();
       const day=dt.getDate();
       const mon=dt.toLocaleString('en-GB',{month:'short'}).toUpperCase();
       const venue=ev._embedded?.venues?.[0];
       const vname=venue?.name||'TBA';
       const city=ev._city;
       const cls=city==='London'?'city-london':'city-brighton';
-      const url=ev.url||'#';
-      el.innerHTML+='<div class="gig-item"><div class="gig-date"><div class="gig-day">'+day+'</div><div class="gig-mon">'+mon+'</div></div><div class="gig-div"></div><div class="gig-info"><div class="gig-artist-name">'+esc(ev.name)+'</div><div class="gig-venue">'+esc(vname)+' &middot; <a href="'+url+'" target="_blank">Tickets</a></div></div><span class="gig-city '+cls+'">'+city+'</span></div>';
+      const ticketUrl=ev.url||'#';
+      el.innerHTML+='<div class="gig-item"><div class="gig-date"><div class="gig-day">'+day+'</div><div class="gig-mon">'+mon+'</div></div><div class="gig-div"></div><div class="gig-info"><div class="gig-artist-name">'+esc(ev.name)+'</div><div class="gig-venue">'+esc(vname)+' &middot; <a href="'+ticketUrl+'" target="_blank">Tickets</a></div></div><span class="gig-city '+cls+'">'+city+'</span></div>';
     });
-  }catch(e){el.innerHTML='<div class="empty-msg">Could not load gigs — check Ticketmaster key</div>';}
+  }catch(e){
+    console.error('Ticketmaster error:',e);
+    el.innerHTML=buildGigFallback();
+  }
+}
+
+function buildGigFallback(){
+  const artists=topArtistNames.slice(0,4);
+  const q=artists.length?artists.join(' OR '):' music';
+  return '<div style="padding:16px;background:var(--surface3);border-radius:var(--radius-sm);text-align:center;font-size:13px;color:var(--text2);">'+
+    'Gigs could not load automatically.<br><br>'+
+    '<a href="https://www.ticketmaster.co.uk/search?q='+encodeURIComponent(q)+'&radius=50&unit=miles&lat=50.82&lng=-0.14" target="_blank" style="color:var(--amber);text-decoration:none;font-weight:600;">Search Brighton gigs on Ticketmaster &#8594;</a><br><br>'+
+    '<a href="https://www.ticketmaster.co.uk/search?q='+encodeURIComponent(q)+'&radius=10&unit=miles&lat=51.50&lng=-0.12" target="_blank" style="color:var(--blue);text-decoration:none;font-weight:600;">Search London gigs on Ticketmaster &#8594;</a>'+
+    '</div>';
 }
 
 // ── REVERB ────────────────────────────────────────────────────────────────────
@@ -984,6 +1039,124 @@ function timeAgo(date){
   if(diff<3600)return Math.floor(diff/60)+'m ago';
   if(diff<86400)return Math.floor(diff/3600)+'h ago';
   return Math.floor(diff/86400)+'d ago';
+}
+
+
+// ── GEAR ─────────────────────────────────────────────────────────────────────
+let guitars = JSON.parse(localStorage.getItem('fb_guitars')||'[]');
+
+const SPECS_DB = {
+  'fender telecaster': {Body:'Alder or Ash',Neck:'Maple',Scale:'25.5"',Pickups:'2x Single-coil',Bridge:'6-saddle string-through',Controls:'Volume, Tone, 3-way switch',Weight:'~3.5kg',Origin:'Fullerton CA, 1950'},
+  'fender stratocaster': {Body:'Alder',Neck:'Maple',Scale:'25.5"',Pickups:'3x Single-coil',Bridge:'Synchronized tremolo',Controls:'Volume, 2x Tone, 5-way switch',Weight:'~3.6kg',Origin:'Fullerton CA, 1954'},
+  'gibson les paul': {Body:'Mahogany + Maple top',Neck:'Mahogany',Scale:'24.75"',Pickups:'2x Humbucker',Bridge:'Tune-o-matic + stopbar',Controls:'2x Volume, 2x Tone, 3-way switch',Weight:'~4.0kg',Origin:'Kalamazoo MI, 1952'},
+  'gibson sg': {Body:'Mahogany',Neck:'Mahogany',Scale:'24.75"',Pickups:'2x Humbucker',Bridge:'Tune-o-matic + stopbar',Controls:'2x Volume, 2x Tone, 3-way switch',Weight:'~2.8kg',Origin:'Kalamazoo MI, 1961'},
+  'gibson es-335': {Body:'Semi-hollow Maple',Neck:'Mahogany',Scale:'24.75"',Pickups:'2x Humbucker',Bridge:'Tune-o-matic',Controls:'2x Volume, 2x Tone, 3-way switch',Weight:'~3.4kg',Origin:'Kalamazoo MI, 1958'},
+  'martin d-28': {Body:'Sitka Spruce / Rosewood',Neck:'Select Hardwood',Scale:'25.4"',Pickups:'None',Bridge:'Ebony belly bridge',Controls:'N/A',Weight:'~2.0kg',Origin:'Nazareth PA, 1931'},
+  'taylor 814ce': {Body:'Sitka Spruce / Rosewood',Neck:'Taylor neck',Scale:'25.5"',Pickups:'Expression System 2',Bridge:'Ebony',Controls:'Volume, Tone, Tuner',Weight:'~2.1kg',Origin:'El Cajon CA'},
+  'prs custom 24': {Body:'Mahogany + Maple top',Neck:'Mahogany',Scale:'25"',Pickups:'2x Humbucker',Bridge:'PRS tremolo',Controls:'Volume, Tone, 3-way toggle',Weight:'~3.4kg',Origin:'Stevensville MD, 1985'},
+  'rickenbacker 360': {Body:'Maple semi-hollow',Neck:'Maple',Scale:'24.75"',Pickups:'2x Hi-Gain single coil',Bridge:'R tailpiece',Controls:'2x Volume, 2x Tone, 5-way',Weight:'~3.2kg',Origin:'Santa Ana CA, 1958'},
+};
+
+function getSpecs(model) {
+  const key = model.toLowerCase();
+  for (const [k, v] of Object.entries(SPECS_DB)) {
+    if (key.includes(k) || k.split(' ').every(w => key.includes(w))) return v;
+  }
+  return null;
+}
+
+function renderGearCarousel() {
+  const el = document.getElementById('gear-carousel');
+  if (!el) return;
+  const count = document.getElementById('gear-count');
+  if (count) count.textContent = guitars.length + ' guitar' + (guitars.length !== 1 ? 's' : '');
+  el.innerHTML = '';
+  guitars.forEach((g, i) => {
+    const div = document.createElement('div');
+    div.className = 'gear-card';
+    div.onclick = () => openGearDetail(i);
+    div.innerHTML = '<div class="gear-img-placeholder">&#127928;</div>' +
+      '<div class="gear-info"><div class="gear-name">' + esc(g.model) + '</div>' +
+      '<div class="gear-meta">' + (g.year ? g.year + ' · ' : '') + esc(g.colour||'') + '</div>' +
+      '<div class="gear-meta" style="color:var(--amber);margin-top:3px">' + esc(g.type) + '</div></div>';
+    el.appendChild(div);
+  });
+  const addCard = document.createElement('div');
+  addCard.className = 'gear-card add-card';
+  addCard.onclick = openAddGear;
+  addCard.innerHTML = '<div style="font-size:36px;color:var(--amber)">+</div><div style="font-size:13px;font-weight:600;color:var(--text2)">Add a guitar</div>';
+  el.appendChild(addCard);
+}
+
+function openAddGear() {
+  ['g-model','g-year','g-colour','g-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('g-type').value = 'Electric';
+  document.getElementById('gear-add-modal').style.display = 'flex';
+}
+
+function saveGear() {
+  const model = document.getElementById('g-model').value.trim();
+  if (!model) { alert('Please enter a make & model'); return; }
+  const guitar = {
+    model,
+    year: document.getElementById('g-year').value.trim(),
+    colour: document.getElementById('g-colour').value.trim(),
+    type: document.getElementById('g-type').value,
+    notes: document.getElementById('g-notes').value.trim(),
+    added: new Date().toLocaleDateString('en-GB')
+  };
+  guitars.push(guitar);
+  localStorage.setItem('fb_guitars', JSON.stringify(guitars));
+  closeGearModal('gear-add-modal');
+  renderGearCarousel();
+  openGearDetail(guitars.length - 1);
+}
+
+function openGearDetail(idx) {
+  const g = guitars[idx];
+  const specs = getSpecs(g.model);
+  const searchUrl = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(g.model + ' ' + (g.year||'') + ' ' + (g.colour||'') + ' guitar');
+
+  let h = '<div style="font-family:Playfair Display,serif;font-size:22px;font-weight:700;margin-bottom:4px;">' + esc(g.model) + '</div>';
+  h += '<div style="font-size:12px;color:var(--text3);margin-bottom:20px;">' + [g.year, g.colour, g.type].filter(Boolean).join(' · ') + '</div>';
+  h += '<div class="gear-detail-img" onclick="window.open('' + searchUrl + '','_blank')" title="Click to search images" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">' +
+    '<div style="font-size:64px">&#127928;</div>' +
+    '<div style="font-size:12px;color:var(--amber)">Tap to search images on Google</div></div>';
+
+  if (specs) {
+    h += '<div style="font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;margin-top:4px;">Specs</div>';
+    h += '<div class="gear-spec-grid">';
+    Object.entries(specs).forEach(([label, val]) => {
+      h += '<div class="gear-spec"><div class="gear-spec-label">' + label + '</div><div class="gear-spec-val">' + val + '</div></div>';
+    });
+    h += '</div>';
+  } else {
+    h += '<div style="background:var(--surface3);border-radius:var(--radius-sm);padding:16px;text-align:center;margin-top:8px;font-size:13px;color:var(--text3);">Specs not on file for this model — tap the image above to search.</div>';
+  }
+
+  if (g.notes) {
+    h += '<div style="margin-top:16px;padding:14px;background:var(--amber-dim);border:1px solid rgba(245,166,35,.2);border-radius:var(--radius-sm);">' +
+      '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--amber);margin-bottom:6px;">Notes</div>' +
+      '<div style="font-size:13px;color:var(--text2);">' + esc(g.notes) + '</div></div>';
+  }
+
+  h += '<div class="gear-btn-row"><button class="gear-del-btn" onclick="deleteGear(' + idx + ')">Remove</button>' +
+    '<div style="flex:1"></div><div style="font-size:11px;color:var(--text3);align-self:center;">Added ' + g.added + '</div></div>';
+
+  document.getElementById('gear-detail-content').innerHTML = h;
+  document.getElementById('gear-detail-modal').style.display = 'flex';
+}
+
+function deleteGear(idx) {
+  if (!confirm('Remove this guitar?')) return;
+  guitars.splice(idx, 1);
+  localStorage.setItem('fb_guitars', JSON.stringify(guitars));
+  closeGearModal('gear-detail-modal');
+  renderGearCarousel();
+}
+
+function closeGearModal(id) {
+  document.getElementById(id).style.display = 'none';
 }
 
 init();
