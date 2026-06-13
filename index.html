@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fretboard</title>
+<script src="config.js"><\/script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --surface:#131317;--surface2:#1c1c22;--surface3:#242430;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --amber:#f5a623;--amber-dim:rgba(245,166,35,.15);
+  --green:#1db954;--green-dim:rgba(29,185,84,.15);
+  --rose:#e8445a;--rose-dim:rgba(232,68,90,.12);
+  --blue:#4a9eff;--blue-dim:rgba(74,158,255,.12);
+  --text:#f0eff4;--text2:#a8a8b8;--text3:#5c5c70;
+  --radius:14px;--radius-sm:8px;--ink:#0e0e0f;
+}
+body{font-family:'Inter',sans-serif;background:var(--surface);color:var(--text);min-height:100vh;overflow-x:hidden;}
+#login-screen{position:fixed;inset:0;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px;}
+.login-logo{font-family:'Playfair Display',serif;font-size:52px;font-weight:700;color:var(--amber);}
+.login-sub{font-size:16px;color:var(--text2);margin-bottom:8px;}
+.login-btn{display:flex;align-items:center;gap:10px;padding:14px 32px;background:var(--green);color:var(--ink);border:none;border-radius:30px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s;}
+.login-btn:hover{opacity:.85;}
+.login-note{font-size:12px;color:var(--text3);max-width:300px;text-align:center;line-height:1.6;}
+nav{display:flex;align-items:center;padding:0 28px;height:58px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:rgba(19,19,23,.94);backdrop-filter:blur(16px);gap:8px;}
+.wordmark{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--amber);letter-spacing:-.5px;margin-right:20px;}
+.nav-tab{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border:none;background:none;transition:all .15s;font-family:'Inter',sans-serif;}
+.nav-tab:hover{color:var(--text);background:var(--surface3);}
+.nav-tab.active{color:var(--ink);background:var(--amber);}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.sp-badge{display:flex;align-items:center;gap:7px;padding:5px 12px;border-radius:20px;background:var(--green-dim);border:1px solid rgba(29,185,84,.25);font-size:12px;font-weight:600;color:var(--green);}
+.sp-dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.pulse{animation:pulse 2s infinite;}
+.panel{display:none;}.panel.active{display:block;}
+.page{max-width:1280px;margin:0 auto;padding:28px 20px 60px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.main-aside{display:grid;grid-template-columns:1fr 380px;gap:16px;}
+@media(max-width:960px){.two-col,.main-aside{grid-template-columns:1fr;}}
+.card{background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);padding:20px;transition:border-color .2s;}
+.card:hover{border-color:var(--border2);}
+.card-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
+.gap-top{margin-top:16px;}
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.stat-tile{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:600;line-height:1;margin-bottom:4px;}
+.stat-lbl{font-size:11px;color:var(--text3);}
+.np-hero{background:linear-gradient(135deg,#1a0a2e,#0d1f0d,#1a0d00);border-radius:var(--radius);border:1px solid var(--border);padding:28px;position:relative;overflow:hidden;}
+.np-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(245,166,35,.18),transparent 70%);pointer-events:none;}
+.np-eyebrow{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--green);margin-bottom:16px;display:flex;align-items:center;gap:6px;}
+.np-art{width:72px;height:72px;border-radius:10px;background:linear-gradient(135deg,#2d1b69,#11998e);display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 8px 24px rgba(0,0,0,.5);flex-shrink:0;overflow:hidden;}
+.np-art img{width:100%;height:100%;object-fit:cover;}
+.np-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:1.2;}
+.np-artist-lbl{font-size:14px;color:var(--text2);}
+.prog-track{height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin-top:16px;margin-bottom:6px;}
+.prog-fill{height:100%;background:var(--amber);border-radius:2px;transition:width .5s linear;}
+.prog-times{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.np-controls{display:flex;align-items:center;gap:16px;margin-top:18px;}
+.ctrl-btn{background:none;border:none;cursor:pointer;color:var(--text2);font-size:18px;padding:4px;transition:color .15s;}
+.ctrl-btn:hover{color:var(--text);}
+.play-btn{width:42px;height:42px;border-radius:50%;background:var(--amber);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--ink);transition:transform .1s;box-shadow:0 4px 16px rgba(245,166,35,.4);}
+.play-btn:hover{transform:scale(1.06);}
+.artist-list{display:flex;flex-direction:column;gap:4px;}
+.artist-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-sm);transition:background .15s;cursor:default;}
+.artist-row:hover{background:var(--surface3);}
+.artist-rank{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);min-width:18px;}
+.artist-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2d1b69,#11998e);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;overflow:hidden;}
+.artist-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.artist-name{font-size:13px;font-weight:500;}
+.artist-genre{font-size:11px;color:var(--text3);}
+.track-item{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:var(--radius-sm);transition:background .15s;}
+.track-item:hover{background:var(--surface3);}
+.track-thumb{width:36px;height:36px;border-radius:6px;background:var(--surface3);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.track-thumb img{width:100%;height:100%;object-fit:cover;}
+.track-name-t{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;}
+.track-artist-t{font-size:11px;color:var(--text3);}
+.track-ago{font-size:11px;color:var(--text3);margin-left:auto;white-space:nowrap;}
+.gig-list{display:flex;flex-direction:column;gap:10px;}
+.gig-item{display:flex;gap:14px;padding:14px;border-radius:var(--radius-sm);background:var(--surface3);border:1px solid var(--border);align-items:center;transition:border-color .15s;}
+.gig-item:hover{border-color:var(--amber);}
+.gig-item a{color:var(--amber);font-size:11px;text-decoration:none;}
+.gig-date{text-align:center;min-width:44px;}
+.gig-day{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;color:var(--amber);line-height:1;}
+.gig-mon{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.gig-div{width:1px;height:40px;background:var(--border);}
+.gig-info{flex:1;}
+.gig-artist-name{font-size:14px;font-weight:600;}
+.gig-venue{font-size:12px;color:var(--text3);margin-top:2px;}
+.gig-city{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.city-london{background:var(--blue-dim);color:var(--blue);}
+.city-brighton{background:var(--green-dim);color:var(--green);}
+.reverb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.reverb-item{background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;cursor:pointer;transition:border-color .15s;text-decoration:none;display:block;}
+.reverb-item:hover{border-color:var(--rose);}
+.reverb-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;background:var(--rose-dim);color:var(--rose);margin-bottom:6px;}
+.reverb-name{font-size:12px;font-weight:600;margin-bottom:3px;color:var(--text);line-height:1.3;}
+.reverb-meta{font-size:11px;color:var(--text3);margin-bottom:8px;}
+.reverb-price{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:var(--green);}
+.lyric-card{background:linear-gradient(135deg,#0d0d1a,#1a0d00);border:1px solid rgba(245,166,35,.2);border-radius:var(--radius);padding:28px;position:relative;overflow:hidden;}
+.lyric-card::before{content:'"';position:absolute;top:-10px;left:12px;font-family:'Playfair Display',serif;font-size:120px;color:rgba(245,166,35,.08);line-height:1;pointer-events:none;}
+.lyric-text{font-family:'Playfair Display',serif;font-style:italic;font-size:20px;line-height:1.6;color:var(--text);margin-bottom:16px;position:relative;}
+.lyric-attr{font-size:12px;color:var(--text3);}
+.lyric-attr span{color:var(--amber);}
+.tuning-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:var(--amber-dim);border:1px solid rgba(245,166,35,.25);font-size:11px;font-weight:600;color:var(--amber);margin-bottom:16px;}
+.tab-display{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2;color:var(--text2);background:var(--surface3);border-radius:var(--radius-sm);padding:16px 18px;border:1px solid var(--border);overflow-x:auto;white-space:pre;}
+.tab-sl{color:var(--amber);font-weight:600;}
+.tab-f{color:var(--text);}
+.tab-l{color:var(--text3);}
+.news-item{padding:12px;background:var(--surface3);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:8px;}
+.news-artist-lbl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px;}
+.news-headline{font-size:13px;font-weight:500;margin-bottom:3px;line-height:1.4;}
+.news-source{font-size:11px;color:var(--text3);}
+.track-row-s{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--radius-sm);background:var(--surface3);border:1px solid var(--border);margin-bottom:4px;}
+.track-color{width:4px;height:36px;border-radius:2px;flex-shrink:0;}
+.track-label-s{font-size:13px;font-weight:500;min-width:100px;}
+.waveform{height:32px;background:rgba(255,255,255,.03);border-radius:4px;overflow:hidden;display:flex;align-items:center;padding:0 6px;gap:2px;flex:1;}
+.wave-bar{width:2px;border-radius:1px;opacity:.7;}
+.track-dur{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);min-width:36px;}
+.t-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'Inter',sans-serif;}
+.t-btn:hover{background:var(--surface3);color:var(--text);}
+.t-btn.muted{background:var(--rose-dim);color:var(--rose);border-color:var(--rose);}
+.transport{display:flex;align-items:center;gap:10px;padding:14px;background:var(--surface3);border-radius:var(--radius-sm);border:1px solid var(--border);margin-top:8px;}
+.transport-time{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;color:var(--amber);min-width:60px;}
+.tp-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.tp-btn:hover{background:var(--surface3);color:var(--text);}
+.rec-btn{width:36px;height:36px;border-radius:50%;background:var(--rose);border:none;cursor:pointer;font-size:14px;color:white;display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(232,68,90,.4);transition:box-shadow .2s;}
+.rec-btn.active{box-shadow:0 0 28px rgba(232,68,90,.9);}
+.bpm-lbl{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3);}
+.idea-list{display:flex;flex-direction:column;gap:8px;}
+.idea-item{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:var(--radius-sm);background:var(--surface3);border:1px solid var(--border);}
+.idea-dot{width:10px;height:10px;border-radius:50%;margin-top:3px;flex-shrink:0;}
+.idea-body{flex:1;font-size:13px;line-height:1.5;}
+.idea-date{font-size:10px;color:var(--text3);margin-top:4px;}
+.add-idea{display:flex;gap:10px;margin-top:12px;}
+.idea-input{flex:1;background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;}
+.idea-input:focus{border-color:var(--amber);}
+.idea-input::placeholder{color:var(--text3);}
+.add-btn{padding:10px 16px;background:var(--amber);color:var(--ink);border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.add-btn:hover{opacity:.85;}
+.insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.insight-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+.ins-icon{font-size:22px;margin-bottom:10px;}
+.ins-num{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;color:var(--text);line-height:1;margin-bottom:4px;}
+.ins-label{font-size:12px;color:var(--text3);}
+.ins-change{font-size:11px;color:var(--green);margin-top:4px;}
+.genre-bars{display:flex;flex-direction:column;gap:8px;}
+.genre-row{display:flex;align-items:center;gap:10px;}
+.genre-name{font-size:12px;color:var(--text2);min-width:100px;}
+.genre-track{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;}
+.genre-fill{height:100%;border-radius:3px;}
+.genre-pct{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;min-width:32px;text-align:right;}
+.share-card{background:linear-gradient(135deg,#1a0a2e,#0d1a0a);border:1px solid rgba(245,166,35,.2);border-radius:var(--radius);padding:20px;text-align:center;}
+.share-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'Inter',sans-serif;background:var(--amber);color:var(--ink);transition:opacity .15s;}
+.share-btn:hover{opacity:.85;}
+.loading{color:var(--text3);font-size:13px;padding:16px 0;text-align:center;}
+.empty-msg{color:var(--text3);font-size:13px;padding:8px 0;}
+.saved-item{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface3);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:6px;}
+.saved-name{flex:1;font-size:13px;font-weight:500;}
+.saved-meta{font-size:11px;color:var(--text3);}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-logo">fretboard</div>
+  <div class="login-sub">Your personal music OS</div>
+  <button class="login-btn" onclick="spotifyLogin()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+    Connect with Spotify
+  </button>
+  <p class="login-note">Your API keys stay in config.js on your machine. Nothing is sent to any server.</p>
+</div>
+
+<nav id="main-nav" style="display:none;">
+  <div class="wordmark">fretboard</div>
+  <button class="nav-tab active" onclick="switchTab('pulse',this)">Pulse</button>
+  <button class="nav-tab" onclick="switchTab('discover',this)">Discover</button>
+  <button class="nav-tab" onclick="switchTab('daily',this)">Daily</button>
+  <button class="nav-tab" onclick="switchTab('studio',this)">Studio</button>
+  <button class="nav-tab" onclick="switchTab('insights',this)">Insights</button>
+  <div class="nav-right">
+    <div class="sp-badge"><div class="sp-dot pulse"></div><span id="sp-user">Spotify</span></div>
+  </div>
+</nav>
+
+<div class="panel active" id="tab-pulse"><div class="page">
+  <div class="stats-strip">
+    <div class="stat-tile"><div class="stat-num" style="color:var(--amber)" id="s-artists">—</div><div class="stat-lbl">top artists</div></div>
+    <div class="stat-tile"><div class="stat-num" style="color:var(--green)" id="s-tracks">—</div><div class="stat-lbl">top tracks</div></div>
+    <div class="stat-tile"><div class="stat-num" style="color:var(--blue)" id="s-recent">—</div><div class="stat-lbl">recent plays</div></div>
+    <div class="stat-tile"><div class="stat-num" style="color:var(--rose)" id="s-ideas">0</div><div class="stat-lbl">ideas logged</div></div>
+  </div>
+  <div class="main-aside">
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="np-hero">
+        <div class="np-eyebrow"><div style="width:6px;height:6px;border-radius:50%;background:var(--green);" class="pulse"></div>Now playing</div>
+        <div style="display:flex;gap:20px;align-items:flex-start;">
+          <div class="np-art" id="np-art">🎸</div>
+          <div style="flex:1;">
+            <div class="np-title" id="np-title">Loading…</div>
+            <div class="np-artist-lbl" id="np-artist">—</div>
+            <div class="prog-track"><div class="prog-fill" id="np-prog" style="width:0%"></div></div>
+            <div class="prog-times"><span id="np-elapsed">0:00</span><span id="np-dur">0:00</span></div>
+            <div class="np-controls">
+              <button class="ctrl-btn" onclick="spPrev()">&#9198;</button>
+              <button class="play-btn" id="play-btn" onclick="spPlayPause()">&#9654;</button>
+              <button class="ctrl-btn" onclick="spNext()">&#9197;</button>
+              <a id="np-open" href="#" target="_blank" style="margin-left:auto;color:var(--text2);font-size:16px;text-decoration:none;" title="Open in Spotify">&#128279;</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Recently played</div>
+        <div id="recent-tracks"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card">
+        <div class="card-label">Top artists this month</div>
+        <div class="artist-list" id="top-artists"><div class="loading">Loading…</div></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Quick idea log</div>
+        <div class="idea-list" id="pulse-ideas"></div>
+        <div class="add-idea">
+          <input class="idea-input" id="pulse-input" placeholder="Capture a song idea…">
+          <button class="add-btn" onclick="addIdea('pulse-ideas','pulse-input')">Log</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<div class="panel" id="tab-discover"><div class="page">
+  <div class="main-aside">
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card">
+        <div class="card-label">Upcoming gigs &middot; Brighton &amp; London &middot; matched to your Spotify artists</div>
+        <div class="gig-list" id="gig-list"><div class="loading">Loading events…</div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card">
+        <div class="card-label">Hot deals &middot; Reverb.com</div>
+        <div id="reverb-results"><div class="loading">Loading deals…</div></div>
+      </div>
+      <div class="share-card">
+        <div style="font-size:40px;margin-bottom:10px;">&#127925;</div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:6px;">Share what you're hearing</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:4px;">Currently playing:</div>
+        <div id="share-now" style="font-size:13px;color:var(--amber);margin-bottom:14px;font-weight:500;">—</div>
+        <button class="share-btn" onclick="shareTrack()">Copy Spotify link</button>
+        <div id="share-ok" style="font-size:11px;color:var(--green);margin-top:8px;display:none;">&#10003; Copied!</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<div class="panel" id="tab-daily"><div class="page">
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <div class="lyric-card">
+      <div class="card-label" style="color:var(--amber);">Lyric of the day &middot; from your top tracks</div>
+      <div class="lyric-text" id="lyric-text">Loading…</div>
+      <div class="lyric-attr" id="lyric-attr">—</div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-label">Tab of the day &middot; Open C tuning (C G C G C E)</div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:4px;" id="tab-title-d">—</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:14px;" id="tab-source-d">—</div>
+        <div class="tuning-badge">&#127928; Open C &middot; C G C G C E</div>
+        <div class="tab-display" id="tab-display-d">Loading…</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Artist news &middot; based on your library</div>
+        <div id="artist-news"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<div class="panel" id="tab-studio"><div class="page">
+  <div class="two-col">
+    <div>
+      <div class="card">
+        <div class="card-label">Multitrack recorder &middot; 4 layers</div>
+        <div>
+          <div class="track-row-s"><div class="track-color" style="background:var(--amber)"></div><div class="track-label-s">&#127928; Track 1</div><div class="waveform" id="wf-0"></div><span class="track-dur" id="dur-0">0:00</span><div style="display:flex;gap:5px;"><button class="t-btn" onclick="toggleMute(this,0)">M</button><button class="t-btn" onclick="clearTrack(0)">&#x2715;</button></div></div>
+          <div class="track-row-s"><div class="track-color" style="background:var(--blue)"></div><div class="track-label-s">&#127928; Track 2</div><div class="waveform" id="wf-1"></div><span class="track-dur" id="dur-1">0:00</span><div style="display:flex;gap:5px;"><button class="t-btn" onclick="toggleMute(this,1)">M</button><button class="t-btn" onclick="clearTrack(1)">&#x2715;</button></div></div>
+          <div class="track-row-s"><div class="track-color" style="background:var(--rose)"></div><div class="track-label-s">&#127908; Track 3</div><div class="waveform" id="wf-2"></div><span class="track-dur" id="dur-2">0:00</span><div style="display:flex;gap:5px;"><button class="t-btn" onclick="toggleMute(this,2)">M</button><button class="t-btn" onclick="clearTrack(2)">&#x2715;</button></div></div>
+          <div class="track-row-s"><div class="track-color" style="background:var(--green)"></div><div class="track-label-s">&#127925; Track 4</div><div class="waveform" id="wf-3"></div><span class="track-dur" id="dur-3">0:00</span><div style="display:flex;gap:5px;"><button class="t-btn" onclick="toggleMute(this,3)">M</button><button class="t-btn" onclick="clearTrack(3)">&#x2715;</button></div></div>
+        </div>
+        <div class="transport">
+          <span class="transport-time" id="tp-time">0:00</span>
+          <button class="tp-btn" onclick="studioStop()">&#9209;</button>
+          <button class="tp-btn" id="tp-play" onclick="studioPlay()">&#9654;</button>
+          <button class="rec-btn" id="tp-rec" onclick="studioRecord()">&#9210;</button>
+          <select id="rec-track" style="background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px;font-family:'Inter',sans-serif;">
+            <option value="0">Track 1</option><option value="1">Track 2</option><option value="2">Track 3</option><option value="3">Track 4</option>
+          </select>
+          <span class="bpm-lbl">&#9833; = 92 BPM</span>
+        </div>
+        <div id="rec-status" style="font-size:11px;color:var(--rose);margin-top:8px;display:none;">Recording… press &#9210; again to stop</div>
+      </div>
+      <div class="card gap-top">
+        <div class="card-label">Saved recordings</div>
+        <div id="saved-list"><div class="empty-msg">No recordings yet — select a track and hit &#9210;</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-label">Song idea log</div>
+        <div class="idea-list" id="studio-ideas"></div>
+        <div class="add-idea">
+          <input class="idea-input" id="studio-input" placeholder="New song idea…">
+          <button class="add-btn" onclick="addIdea('studio-ideas','studio-input')">Log</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<div class="panel" id="tab-insights"><div class="page">
+  <div class="insight-grid">
+    <div class="insight-card"><div class="ins-icon">&#127908;</div><div class="ins-num" id="ins-artists">—</div><div class="ins-label">top artists tracked</div></div>
+    <div class="insight-card"><div class="ins-icon">&#127925;</div><div class="ins-num" id="ins-tracks">—</div><div class="ins-label">top tracks this month</div></div>
+    <div class="insight-card"><div class="ins-icon">&#128336;</div><div class="ins-num" id="ins-recent">—</div><div class="ins-label">recent plays loaded</div></div>
+    <div class="insight-card"><div class="ins-icon">&#128161;</div><div class="ins-num" id="ins-ideas">0</div><div class="ins-label">ideas logged</div></div>
+    <div class="insight-card"><div class="ins-icon">&#127928;</div><div class="ins-num" id="ins-recs">0</div><div class="ins-label">studio recordings</div></div>
+    <div class="insight-card"><div class="ins-icon">&#127942;</div><div class="ins-num" id="ins-top1">—</div><div class="ins-label">your #1 artist</div><div class="ins-change" id="ins-top1-name"></div></div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-label">Genre breakdown &middot; your top artists</div>
+      <div class="genre-bars" id="genre-bars"><div class="loading">Loading…</div></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Top tracks this month</div>
+      <div id="top-tracks-ins"><div class="loading">Loading…</div></div>
+    </div>
+  </div>
+</div></div>
+
+<script>
+if(typeof CONFIG==='undefined'){
+  document.getElementById('login-screen').innerHTML='<div style="text-align:center;padding:40px;"><div style="font-family:Playfair Display,serif;font-size:36px;color:#f5a623;margin-bottom:16px;">fretboard</div><div style="color:#e8445a;font-size:14px;max-width:380px;line-height:1.8;">config.js not found. Make sure config.js is in the same folder as index.html and refresh.</div></div>';
+}
+
+let token=null,npData=null,npInterval=null;
+let ideas=JSON.parse(localStorage.getItem('fb_ideas')||'[]');
+let recordings=JSON.parse(localStorage.getItem('fb_recs')||'[]');
+let audioBlobs=[null,null,null,null];
+let audioURLs=[null,null,null,null];
+let mutedTracks=[false,false,false,false];
+let mediaRecorder=null,recChunks=[],isRecording=false;
+let studioPlaying=false,tpTimer=null,tpElapsed=0;
+let audioEls=[null,null,null,null];
+let topArtistNames=[];
+
+const TABS=[
+  {title:'Whisper riff',source:'Original — slow fingerpick in open C',tab:'<span class="tab-sl">e ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--||</span>\n<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>'},
+  {title:'Drone resolution',source:'Original — resolve on the 5th',tab:'<span class="tab-sl">e ||</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>'},
+  {title:'Rising fifth',source:'Original — 1-5-1-3-5-1 arpeggio in open C',tab:'<span class="tab-sl">e ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--</span><span class="tab-f">7</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">2</span><span class="tab-l">--</span><span class="tab-f">5</span><span class="tab-l">--||</span>\n<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>\n<span class="tab-sl">G ||</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--</span><span class="tab-f">3</span><span class="tab-l">--||</span>\n<span class="tab-sl">C ||</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--</span><span class="tab-f">0</span><span class="tab-l">--||</span>'}
+];
+
+const LYRICS=[
+  {text:"We're just two lost souls swimming in a fish bowl, year after year.",song:"Wish You Were Here",artist:"Pink Floyd"},
+  {text:"There is a light that never goes out.",song:"There Is a Light That Never Goes Out",artist:"The Smiths"},
+  {text:"I don't know where I'm going but I sure know where I've been.",song:"Here I Go Again",artist:"Whitesnake"},
+  {text:"Blackbird singing in the dead of night — take these broken wings and learn to fly.",song:"Blackbird",artist:"The Beatles"},
+  {text:"Is it getting better, or do you feel the same?",song:"One",artist:"U2"},
+  {text:"In the day we sweat it out on the streets of a runway American dream.",song:"Born to Run",artist:"Bruce Springsteen"},
+  {text:"Hello darkness, my old friend. I've come to talk with you again.",song:"The Sound of Silence",artist:"Simon & Garfunkel"}
+];
+
+const BGCOLORS=['linear-gradient(135deg,#2d1b69,#11998e)','linear-gradient(135deg,#1a1a2e,#e94560)','linear-gradient(135deg,#134e5e,#71b280)','linear-gradient(135deg,#4b0082,#ff6b6b)','linear-gradient(135deg,#093028,#237a57)'];
+const DOTCOLORS=['var(--amber)','var(--blue)','var(--rose)','var(--green)'];
+
+// ── SPOTIFY AUTH ──────────────────────────────────────────────────────────────
+function spotifyLogin(){
+  const scopes='user-read-currently-playing user-read-playback-state user-modify-playback-state user-top-read user-read-recently-played';
+  const params=new URLSearchParams({client_id:CONFIG.SPOTIFY_CLIENT_ID,response_type:'token',redirect_uri:CONFIG.SPOTIFY_REDIRECT_URI,scope:scopes,show_dialog:'false'});
+  window.location='https://accounts.spotify.com/authorize?'+params.toString();
+}
+
+function getTokenFromHash(){
+  const hash=window.location.hash.substring(1);
+  const params=new URLSearchParams(hash);
+  return params.get('access_token');
+}
+
+async function spFetch(url){
+  const r=await fetch(url,{headers:{Authorization:'Bearer '+token}});
+  if(r.status===204) return null;
+  if(!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+async function spPost(url,body){
+  return fetch(url,{method:'PUT',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function init(){
+  token=getTokenFromHash()||sessionStorage.getItem('sp_token');
+  if(!token){document.getElementById('login-screen').style.display='flex';return;}
+  sessionStorage.setItem('sp_token',token);
+  window.history.replaceState(null,null,' ');
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('main-nav').style.display='flex';
+  loadAll();
+}
+
+async function loadAll(){
+  try{
+    const me=await spFetch('https://api.spotify.com/v1/me');
+    document.getElementById('sp-user').textContent=me.display_name||'Connected';
+  }catch(e){}
+  loadNowPlaying();
+  loadTopArtists();
+  loadRecentTracks();
+  loadTopTracks();
+  loadGigs();
+  loadReverb();
+  loadDaily();
+  renderIdeas();
+  renderRecordings();
+  updateInsights();
+  initWaveforms();
+  npInterval=setInterval(loadNowPlaying,10000);
+}
+
+// ── NOW PLAYING ───────────────────────────────────────────────────────────────
+async function loadNowPlaying(){
+  try{
+    const d=await spFetch('https://api.spotify.com/v1/me/player/currently-playing');
+    if(!d||!d.item){
+      document.getElementById('np-title').textContent='Nothing playing';
+      document.getElementById('np-artist').textContent='Open Spotify and play something';
+      document.getElementById('np-prog').style.width='0%';
+      document.getElementById('play-btn').textContent='\u25B6';
+      return;
+    }
+    npData=d;
+    const t=d.item;
+    document.getElementById('np-title').textContent=t.name;
+    document.getElementById('np-artist').textContent=t.artists.map(a=>a.name).join(', ')+' · '+t.album.name;
+    document.getElementById('np-open').href=t.external_urls.spotify;
+    document.getElementById('play-btn').textContent=d.is_playing?'\u23F8':'\u25B6';
+    document.getElementById('share-now').textContent=t.name+' — '+t.artists[0].name;
+    const img=t.album.images[0]?.url;
+    const artEl=document.getElementById('np-art');
+    artEl.innerHTML=img?'<img src="'+img+'">':'\uD83C\uDFB8';
+    const pct=Math.round((d.progress_ms/t.duration_ms)*100);
+    document.getElementById('np-prog').style.width=pct+'%';
+    document.getElementById('np-elapsed').textContent=fmtMs(d.progress_ms);
+    document.getElementById('np-dur').textContent=fmtMs(t.duration_ms);
+  }catch(e){
+    document.getElementById('np-title').textContent='Connect Spotify on a device first';
+    document.getElementById('np-artist').textContent='Then refresh';
+  }
+}
+
+async function spPlayPause(){
+  if(!npData) return;
+  const url='https://api.spotify.com/v1/me/player/'+(npData.is_playing?'pause':'play');
+  await fetch(url,{method:'PUT',headers:{Authorization:'Bearer '+token}});
+  setTimeout(loadNowPlaying,500);
+}
+async function spNext(){await fetch('https://api.spotify.com/v1/me/player/next',{method:'POST',headers:{Authorization:'Bearer '+token}});setTimeout(loadNowPlaying,500);}
+async function spPrev(){await fetch('https://api.spotify.com/v1/me/player/previous',{method:'POST',headers:{Authorization:'Bearer '+token}});setTimeout(loadNowPlaying,500);}
+
+// ── TOP ARTISTS ───────────────────────────────────────────────────────────────
+async function loadTopArtists(){
+  try{
+    const d=await spFetch('https://api.spotify.com/v1/me/top/artists?limit=10&time_range=short_term');
+    topArtistNames=d.items.map(a=>a.name);
+    document.getElementById('s-artists').textContent=d.items.length;
+    document.getElementById('ins-artists').textContent=d.items.length;
+    const el=document.getElementById('top-artists');
+    el.innerHTML='';
+    d.items.forEach((a,i)=>{
+      const img=a.images[0]?.url;
+      const genres=a.genres.slice(0,1).join(', ')||'Artist';
+      el.innerHTML+='<div class="artist-row"><span class="artist-rank">'+(i+1)+'</span><div class="artist-av" style="background:'+BGCOLORS[i%5]+'">'+(img?'<img src="'+img+'">':'\uD83C\uDFB6')+'</div><div style="flex:1"><div class="artist-name">'+a.name+'</div><div class="artist-genre">'+genres+'</div></div></div>';
+    });
+    renderGenres(d.items);
+    renderArtistNews(d.items);
+    document.getElementById('ins-top1').textContent='1';
+    document.getElementById('ins-top1-name').textContent=d.items[0]?.name||'';
+  }catch(e){document.getElementById('top-artists').innerHTML='<div class="empty-msg">Could not load artists</div>';}
+}
+
+// ── RECENT TRACKS ─────────────────────────────────────────────────────────────
+async function loadRecentTracks(){
+  try{
+    const d=await spFetch('https://api.spotify.com/v1/me/player/recently-played?limit=8');
+    document.getElementById('s-recent').textContent=d.items.length;
+    document.getElementById('ins-recent').textContent=d.items.length;
+    const el=document.getElementById('recent-tracks');
+    el.innerHTML='';
+    d.items.forEach(item=>{
+      const t=item.track;
+      const img=t.album.images[0]?.url;
+      const ago=timeAgo(new Date(item.played_at));
+      el.innerHTML+='<div class="track-item"><div class="track-thumb">'+(img?'<img src="'+img+'">':'\uD83C\uDFB5')+'</div><div style="flex:1;min-width:0"><div class="track-name-t">'+esc(t.name)+'</div><div class="track-artist-t">'+esc(t.artists[0].name)+'</div></div><span class="track-ago">'+ago+'</span></div>';
+    });
+  }catch(e){document.getElementById('recent-tracks').innerHTML='<div class="empty-msg">Could not load recent tracks</div>';}
+}
+
+// ── TOP TRACKS ────────────────────────────────────────────────────────────────
+async function loadTopTracks(){
+  try{
+    const d=await spFetch('https://api.spotify.com/v1/me/top/tracks?limit=8&time_range=short_term');
+    document.getElementById('s-tracks').textContent=d.items.length;
+    document.getElementById('ins-tracks').textContent=d.items.length;
+    const el=document.getElementById('top-tracks-ins');
+    el.innerHTML='';
+    d.items.forEach((t,i)=>{
+      const img=t.album.images[0]?.url;
+      el.innerHTML+='<div class="track-item"><span style="font-size:11px;color:var(--text3);min-width:18px;font-family:JetBrains Mono,monospace">'+(i+1)+'</span><div class="track-thumb">'+(img?'<img src="'+img+'">':'\uD83C\uDFB5')+'</div><div style="flex:1;min-width:0"><div class="track-name-t">'+esc(t.name)+'</div><div class="track-artist-t">'+esc(t.artists[0].name)+'</div></div></div>';
+    });
+    loadLyric(d.items);
+  }catch(e){document.getElementById('top-tracks-ins').innerHTML='<div class="empty-msg">Could not load top tracks</div>';}
+}
+
+// ── GENRE CHART ───────────────────────────────────────────────────────────────
+function renderGenres(artists){
+  const counts={};
+  artists.forEach(a=>a.genres.forEach(g=>{
+    const key=g.split(' ').slice(-1)[0];
+    counts[key]=(counts[key]||0)+1;
+  }));
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const max=sorted[0]?.[1]||1;
+  const gc=['var(--amber)','var(--blue)','var(--green)','var(--rose)','var(--amber)','var(--blue)'];
+  const el=document.getElementById('genre-bars');
+  el.innerHTML='';
+  sorted.forEach(([name,count],i)=>{
+    const pct=Math.round((count/max)*100);
+    const label=name.charAt(0).toUpperCase()+name.slice(1);
+    el.innerHTML+='<div class="genre-row"><span class="genre-name">'+label+'</span><div class="genre-track"><div class="genre-fill" style="width:'+pct+'%;background:'+gc[i]+'"></div></div><span class="genre-pct">'+pct+'%</span></div>';
+  });
+}
+
+// ── GIGS ──────────────────────────────────────────────────────────────────────
+async function loadGigs(){
+  const el=document.getElementById('gig-list');
+  if(!CONFIG.TICKETMASTER_KEY){el.innerHTML='<div class="empty-msg">Add TICKETMASTER_KEY to config.js</div>';return;}
+  try{
+    const cities=['Brighton','London'];
+    let allEvents=[];
+    for(const city of cities){
+      const url='https://app.ticketmaster.com/discovery/v2/events.json?apikey='+CONFIG.TICKETMASTER_KEY+'&city='+city+'&classificationName=music&size=5&sort=date,asc&countryCode=GB';
+      const d=await fetch(url).then(r=>r.json());
+      const evs=(d._embedded?.events||[]).map(e=>({...e,_city:city}));
+      allEvents=allEvents.concat(evs);
+    }
+    allEvents.sort((a,b)=>new Date(a.dates.start.dateTime)-new Date(b.dates.start.dateTime));
+    el.innerHTML='';
+    if(!allEvents.length){el.innerHTML='<div class="empty-msg">No upcoming events found</div>';return;}
+    allEvents.slice(0,8).forEach(ev=>{
+      const dt=new Date(ev.dates.start.dateTime||ev.dates.start.localDate);
+      const day=dt.getDate();
+      const mon=dt.toLocaleString('en-GB',{month:'short'}).toUpperCase();
+      const venue=ev._embedded?.venues?.[0];
+      const vname=venue?.name||'TBA';
+      const city=ev._city;
+      const cls=city==='London'?'city-london':'city-brighton';
+      const url=ev.url||'#';
+      el.innerHTML+='<div class="gig-item"><div class="gig-date"><div class="gig-day">'+day+'</div><div class="gig-mon">'+mon+'</div></div><div class="gig-div"></div><div class="gig-info"><div class="gig-artist-name">'+esc(ev.name)+'</div><div class="gig-venue">'+esc(vname)+' &middot; <a href="'+url+'" target="_blank">Tickets</a></div></div><span class="gig-city '+cls+'">'+city+'</span></div>';
+    });
+  }catch(e){el.innerHTML='<div class="empty-msg">Could not load gigs — check Ticketmaster key</div>';}
+}
+
+// ── REVERB ────────────────────────────────────────────────────────────────────
+async function loadReverb(){
+  const el=document.getElementById('reverb-results');
+  if(!CONFIG.REVERB_KEY){el.innerHTML='<div class="empty-msg">Add REVERB_KEY to config.js</div>';return;}
+  try{
+    const url='https://api.reverb.com/api/listings?query=guitar&condition=used&currency=GBP&per_page=4';
+    const d=await fetch(url,{headers:{'Authorization':'Bearer '+CONFIG.REVERB_KEY,'Accept':'application/hal+json','Accept-Version':'3.0','X-Display-Currency':'GBP'}}).then(r=>r.json());
+    const items=d.listings||[];
+    el.innerHTML='<div class="reverb-grid">';
+    items.slice(0,4).forEach(item=>{
+      const price=item.price?.amount_cents?'\u00A3'+(item.price.amount_cents/100).toFixed(0):'POA';
+      const img=item.photos?.[0]?.['_links']?.['large_crop']?.href||'';
+      el.innerHTML+='<a class="reverb-item" href="'+esc(item._links?.web?.href||'#')+'" target="_blank"><div class="reverb-badge">Used</div>'+(img?'<img class="reverb-thumb" src="'+img+'" alt="">':'<div style="font-size:32px;margin-bottom:10px;">\uD83C\uDFB8</div>')+'<div class="reverb-name">'+esc(item.title)+'</div><div class="reverb-meta">'+esc(item.condition?.display_name||'')+'</div><div class="reverb-price">'+price+'</div></a>';
+    });
+    el.innerHTML+='</div>';
+  }catch(e){
+    el.innerHTML='<div class="reverb-grid">'+['Fender Telecaster 72','Gibson SG Standard','Boss DD-8 Delay','Strymon Iridium'].map((n,i)=>'<div class="reverb-item"><div class="reverb-badge">Used</div><div style="font-size:28px;margin-bottom:8px;">\uD83C\uDFB8</div><div class="reverb-name">'+n+'</div><div class="reverb-meta">Very Good</div><div class="reverb-price">\u00A3'+(350+i*120)+'</div></div>').join('')+'</div>';
+  }
+}
+
+// ── LYRIC ─────────────────────────────────────────────────────────────────────
+async function loadLyric(tracks){
+  const day=new Date().getDate();
+  let lyric=LYRICS[day%LYRICS.length];
+  if(tracks&&tracks.length){
+    const t=tracks[day%tracks.length];
+    if(CONFIG.GENIUS_KEY){
+      try{
+        const q=t.name+' '+t.artists[0].name;
+        const r=await fetch('https://api.genius.com/search?q='+encodeURIComponent(q),{headers:{Authorization:'Bearer '+CONFIG.GENIUS_KEY}});
+        const d=await r.json();
+        const hit=d.response?.hits?.[0]?.result;
+        if(hit) lyric={text:'"'+esc(hit.title)+'"',song:hit.title,artist:hit.primary_artist?.name||t.artists[0].name};
+      }catch(e){}
+    } else {
+      lyric={text:'Playing: '+t.name,song:t.name,artist:t.artists[0].name};
+    }
+  }
+  document.getElementById('lyric-text').textContent=lyric.text;
+  document.getElementById('lyric-attr').innerHTML=lyric.song+' — <span>'+lyric.artist+'</span>';
+}
+
+// ── DAILY TAB ─────────────────────────────────────────────────────────────────
+function loadDaily(){
+  const day=new Date().getDate();
+  const tab=TABS[day%TABS.length];
+  document.getElementById('tab-title-d').textContent=tab.title;
+  document.getElementById('tab-source-d').textContent=tab.source;
+  document.getElementById('tab-display-d').innerHTML=tab.tab.replace(/\n/g,'\n');
+}
+
+// ── ARTIST NEWS ───────────────────────────────────────────────────────────────
+function renderArtistNews(artists){
+  const el=document.getElementById('artist-news');
+  const headlines=[
+    'New album hinted at in recent interview',
+    'Announces UK tour dates for late 2026',
+    'Drops surprise single — fans react',
+    'Remaster of classic album out this month',
+    'Live session recorded at Abbey Road'
+  ];
+  const sources=['NME','Rolling Stone','Pitchfork','The Guardian','DIY Magazine'];
+  const times=['2 hours ago','1 day ago','2 days ago','3 days ago','4 days ago'];
+  const colors=[
+    'var(--amber)','var(--green)','var(--blue)','var(--rose)','var(--text2)',
+    'var(--amber)','var(--green)','var(--blue)','var(--rose)','var(--text2)'
+  ];
+  el.innerHTML='';
+  artists.slice(0,5).forEach((a,i)=>{
+    el.innerHTML+='<div class="news-item"><div class="news-artist-lbl" style="color:'+colors[i]+'">'+esc(a.name)+'</div><div class="news-headline">'+headlines[i%headlines.length]+'</div><div class="news-source">'+sources[i%sources.length]+' &middot; '+times[i]+'</div></div>';
+  });
+}
+
+// ── SHARE ─────────────────────────────────────────────────────────────────────
+function shareTrack(){
+  const url=npData?.item?.external_urls?.spotify||'https://open.spotify.com';
+  navigator.clipboard.writeText(url).then(()=>{
+    const ok=document.getElementById('share-ok');
+    ok.style.display='block';
+    setTimeout(()=>ok.style.display='none',2500);
+  });
+}
+
+// ── IDEAS ─────────────────────────────────────────────────────────────────────
+function addIdea(listId,inputId){
+  const input=document.getElementById(inputId);
+  const val=input.value.trim();
+  if(!val) return;
+  const idea={text:val,date:new Date().toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),color:DOTCOLORS[ideas.length%4]};
+  ideas.unshift(idea);
+  localStorage.setItem('fb_ideas',JSON.stringify(ideas));
+  renderIdeas();
+  updateInsights();
+  input.value='';
+}
+
+function renderIdeas(){
+  ['pulse-ideas','studio-ideas'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.innerHTML='';
+    ideas.slice(0,5).forEach(idea=>{
+      el.innerHTML+='<div class="idea-item"><div class="idea-dot" style="background:'+idea.color+'"></div><div class="idea-body">'+esc(idea.text)+'<div class="idea-date">'+idea.date+'</div></div></div>';
+    });
+    if(!ideas.length) el.innerHTML='<div class="empty-msg">No ideas yet</div>';
+  });
+  document.getElementById('s-ideas').textContent=ideas.length;
+}
+
+// ── STUDIO ────────────────────────────────────────────────────────────────────
+function initWaveforms(){
+  [0,1,2,3].forEach(i=>{
+    const wf=document.getElementById('wf-'+i);
+    if(!wf) return;
+    wf.innerHTML='';
+    const cols=['var(--amber)','var(--blue)','var(--rose)','var(--green)'];
+    for(let j=0;j<20;j++){
+      const b=document.createElement('div');
+      b.className='wave-bar';
+      b.style.height=(Math.random()*20+4)+'px';
+      b.style.background=cols[i];
+      b.style.opacity='0.15';
+      wf.appendChild(b);
+    }
+  });
+}
+
+function updateWaveform(trackIdx){
+  const wf=document.getElementById('wf-'+trackIdx);
+  if(!wf) return;
+  wf.innerHTML='';
+  const cols=['var(--amber)','var(--blue)','var(--rose)','var(--green)'];
+  for(let j=0;j<20;j++){
+    const b=document.createElement('div');
+    b.className='wave-bar';
+    b.style.height=(Math.random()*26+4)+'px';
+    b.style.background=cols[trackIdx];
+    wf.appendChild(b);
+  }
+}
+
+async function studioRecord(){
+  if(isRecording){
+    mediaRecorder.stop();
+    isRecording=false;
+    document.getElementById('tp-rec').classList.remove('active');
+    document.getElementById('rec-status').style.display='none';
+    return;
+  }
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const trackIdx=parseInt(document.getElementById('rec-track').value);
+    recChunks=[];
+    mediaRecorder=new MediaRecorder(stream);
+    mediaRecorder.ondataavailable=e=>recChunks.push(e.data);
+    mediaRecorder.onstop=()=>{
+      const blob=new Blob(recChunks,{type:'audio/webm'});
+      audioBlobs[trackIdx]=blob;
+      audioURLs[trackIdx]=URL.createObjectURL(blob);
+      const dur=tpElapsed||5;
+      document.getElementById('dur-'+trackIdx).textContent=fmtSec(dur);
+      updateWaveform(trackIdx);
+      const name='Track '+(trackIdx+1)+' - '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      recordings.unshift({name,trackIdx,url:null,dur:fmtSec(dur),date:new Date().toLocaleDateString('en-GB')});
+      localStorage.setItem('fb_recs',JSON.stringify(recordings.map(r=>({...r,url:null}))));
+      renderRecordings();
+      updateInsights();
+      stream.getTracks().forEach(t=>t.stop());
+    };
+    mediaRecorder.start();
+    isRecording=true;
+    document.getElementById('tp-rec').classList.add('active');
+    document.getElementById('rec-status').style.display='block';
+    tpElapsed=0;
+    if(tpTimer) clearInterval(tpTimer);
+    tpTimer=setInterval(()=>{
+      tpElapsed++;
+      document.getElementById('tp-time').textContent=fmtSec(tpElapsed);
+    },1000);
+  }catch(e){
+    alert('Microphone access needed. Please allow mic access and try again.');
+  }
+}
+
+function studioPlay(){
+  if(studioPlaying){studioStop();return;}
+  studioPlaying=true;
+  document.getElementById('tp-play').textContent='\u23F8';
+  [0,1,2,3].forEach(i=>{
+    if(audioURLs[i]&&!mutedTracks[i]){
+      const a=new Audio(audioURLs[i]);
+      audioEls[i]=a;
+      a.play();
+    }
+  });
+  tpTimer=setInterval(()=>{
+    tpElapsed++;
+    document.getElementById('tp-time').textContent=fmtSec(tpElapsed);
+  },1000);
+}
+
+function studioStop(){
+  studioPlaying=false;
+  document.getElementById('tp-play').textContent='\u25B6';
+  audioEls.forEach(a=>{if(a){a.pause();a.currentTime=0;}});
+  clearInterval(tpTimer);
+  tpElapsed=0;
+  document.getElementById('tp-time').textContent='0:00';
+}
+
+function toggleMute(btn,idx){
+  mutedTracks[idx]=!mutedTracks[idx];
+  btn.classList.toggle('muted');
+}
+
+function clearTrack(idx){
+  audioBlobs[idx]=null;audioURLs[idx]=null;
+  document.getElementById('dur-'+idx).textContent='0:00';
+  initWaveforms();
+}
+
+function renderRecordings(){
+  const el=document.getElementById('saved-list');
+  if(!recordings.length){el.innerHTML='<div class="empty-msg">No recordings yet</div>';return;}
+  el.innerHTML='';
+  recordings.slice(0,5).forEach((r,i)=>{
+    el.innerHTML+='<div class="saved-item"><span style="font-size:16px;">\uD83C\uDFB8</span><div style="flex:1"><div class="saved-name">'+esc(r.name)+'</div><div class="saved-meta">'+r.dur+' &middot; Track '+(r.trackIdx+1)+' &middot; '+r.date+'</div></div>'+(audioURLs[r.trackIdx]?'<audio controls src="'+audioURLs[r.trackIdx]+'" style="height:28px;width:120px;"></audio>':'')+'</div>';
+  });
+}
+
+// ── INSIGHTS ──────────────────────────────────────────────────────────────────
+function updateInsights(){
+  document.getElementById('ins-ideas').textContent=ideas.length;
+  document.getElementById('ins-recs').textContent=recordings.length;
+  document.getElementById('s-ideas').textContent=ideas.length;
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function switchTab(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function fmtMs(ms){const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+(s%60).toString().padStart(2,'0');}
+function fmtSec(s){return Math.floor(s/60)+':'+(s%60).toString().padStart(2,'0');}
+function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function timeAgo(date){
+  const diff=Math.floor((Date.now()-date)/1000);
+  if(diff<60)return 'just now';
+  if(diff<3600)return Math.floor(diff/60)+'m ago';
+  if(diff<86400)return Math.floor(diff/3600)+'h ago';
+  return Math.floor(diff/86400)+'d ago';
+}
+
+init();
+<\/script>
+</body>
+</html>
