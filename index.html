@@ -159,7 +159,7 @@ nav{display:flex;align-items:center;padding:0 28px;height:58px;border-bottom:1px
 .add-btn{padding:10px 16px;background:var(--amber);color:var(--ink);border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
 .add-btn:hover{opacity:.85;}
 .insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
-.insight-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+.insight-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:border-color .2s,transform .15s;}.insight-card:hover{border-color:var(--amber);transform:translateY(-2px);}
 .ins-icon{font-size:22px;margin-bottom:10px;}
 .ins-num{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;color:var(--text);line-height:1;margin-bottom:4px;}
 .ins-label{font-size:12px;color:var(--text3);}
@@ -382,12 +382,12 @@ nav{display:flex;align-items:center;padding:0 28px;height:58px;border-bottom:1px
 
 <div class="panel" id="tab-insights"><div class="page">
   <div class="insight-grid">
-    <div class="insight-card"><div class="ins-icon">&#127908;</div><div class="ins-num" id="ins-artists">—</div><div class="ins-label">top artists tracked</div></div>
-    <div class="insight-card"><div class="ins-icon">&#127925;</div><div class="ins-num" id="ins-tracks">—</div><div class="ins-label">top tracks this month</div></div>
-    <div class="insight-card"><div class="ins-icon">&#128336;</div><div class="ins-num" id="ins-recent">—</div><div class="ins-label">recent plays loaded</div></div>
-    <div class="insight-card"><div class="ins-icon">&#128161;</div><div class="ins-num" id="ins-ideas">0</div><div class="ins-label">ideas logged</div></div>
-    <div class="insight-card"><div class="ins-icon">&#127928;</div><div class="ins-num" id="ins-recs">0</div><div class="ins-label">studio recordings</div></div>
-    <div class="insight-card"><div class="ins-icon">&#127942;</div><div class="ins-num" id="ins-top1">—</div><div class="ins-label">your #1 artist</div><div class="ins-change" id="ins-top1-name"></div></div>
+    <div class="insight-card" onclick="showInsightDetail('artists')" style="cursor:pointer"><div class="ins-icon">&#127908;</div><div class="ins-num" id="ins-artists">—</div><div class="ins-label">top artists tracked</div></div>
+    <div class="insight-card" onclick="showInsightDetail('tracks')" style="cursor:pointer"><div class="ins-icon">&#127925;</div><div class="ins-num" id="ins-tracks">—</div><div class="ins-label">top tracks this month</div></div>
+    <div class="insight-card" onclick="showInsightDetail('recent')" style="cursor:pointer"><div class="ins-icon">&#128336;</div><div class="ins-num" id="ins-recent">—</div><div class="ins-label">recent plays loaded</div></div>
+    <div class="insight-card" onclick="showInsightDetail('ideas')" style="cursor:pointer"><div class="ins-icon">&#128161;</div><div class="ins-num" id="ins-ideas">0</div><div class="ins-label">ideas logged</div></div>
+    <div class="insight-card" onclick="showInsightDetail('recordings')" style="cursor:pointer"><div class="ins-icon">&#127928;</div><div class="ins-num" id="ins-recs">0</div><div class="ins-label">studio recordings</div></div>
+    <div class="insight-card" onclick="showInsightDetail('top1')" style="cursor:pointer"><div class="ins-icon">&#127942;</div><div class="ins-num" id="ins-top1">—</div><div class="ins-label">your #1 artist</div><div class="ins-change" id="ins-top1-name"></div></div>
   </div>
   <div class="two-col">
     <div class="card">
@@ -467,6 +467,14 @@ nav{display:flex;align-items:center;padding:0 28px;height:58px;border-bottom:1px
   </div>
 </div>
 
+<!-- INSIGHTS DETAIL MODAL -->
+<div class="gear-modal" id="insights-modal" style="display:none;">
+  <div class="gear-modal-box">
+    <button class="gear-modal-close" onclick="document.getElementById('insights-modal').style.display='none'">&#x2715;</button>
+    <div id="insights-modal-content"></div>
+  </div>
+</div>
+
 <script>
 if(typeof CONFIG==='undefined'){
   document.getElementById('login-screen').innerHTML='<div style="text-align:center;padding:40px;"><div style="font-family:Playfair Display,serif;font-size:36px;color:#f5a623;margin-bottom:16px;">fretboard</div><div style="color:#e8445a;font-size:14px;max-width:380px;line-height:1.8;">config.js not found. Make sure config.js is in the same folder as index.html and refresh.</div></div>';
@@ -537,6 +545,8 @@ async function getTokenFromCode(){
   const d=await r.json();
   if(d.access_token){
     if(d.refresh_token) localStorage.setItem('sp_refresh',d.refresh_token);
+    // Store expiry time (tokens last 1 hour)
+    localStorage.setItem('sp_token_expiry', Date.now() + (d.expires_in||3600)*1000);
     return d.access_token;
   }
   return null;
@@ -551,8 +561,24 @@ function getTokenFromHash(){
 async function spFetch(url){
   const r=await fetch(url,{headers:{Authorization:'Bearer '+token}});
   if(r.status===204) return null;
+  if(r.status===401){
+    // Token expired mid-session
+    localStorage.removeItem('sp_token');
+    localStorage.removeItem('sp_token_expiry');
+    showReconnectBanner();
+    throw new Error('401');
+  }
   if(!r.ok) throw new Error(r.status);
   return r.json();
+}
+
+function showReconnectBanner(){
+  if(document.getElementById('reconnect-banner')) return;
+  const b=document.createElement('div');
+  b.id='reconnect-banner';
+  b.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1c1c22;border:1px solid rgba(245,166,35,.4);border-radius:12px;padding:14px 20px;display:flex;align-items:center;gap:14px;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,.5);font-size:13px;';
+  b.innerHTML='<span style="color:#a8a8b8">Spotify session expired</span><button onclick="localStorage.removeItem(\'sp_token\');location.reload()" style="background:#f5a623;color:#0e0e0f;border:none;border-radius:20px;padding:6px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">Reconnect</button><button onclick="this.parentNode.remove()" style="background:none;border:none;color:#5c5c70;cursor:pointer;font-size:16px;">✕</button>';
+  document.body.appendChild(b);
 }
 
 async function spPost(url,body){
@@ -563,6 +589,14 @@ async function spPost(url,body){
 async function init(){
   // Try existing token
   token=localStorage.getItem('sp_token');
+  // Check if token is expired
+  const expiry=parseInt(localStorage.getItem('sp_token_expiry')||'0');
+  if(token && expiry && Date.now() > expiry){
+    console.log('Token expired, clearing');
+    localStorage.removeItem('sp_token');
+    localStorage.removeItem('sp_token_expiry');
+    token=null;
+  }
   
   // Try code from redirect
   if(!token && window.location.search.includes('code=')){
@@ -634,8 +668,10 @@ async function loadNowPlaying(){
     document.getElementById('np-elapsed').textContent=fmtMs(d.progress_ms);
     document.getElementById('np-dur').textContent=fmtMs(t.duration_ms);
   }catch(e){
-    document.getElementById('np-title').textContent='Connect Spotify on a device first';
-    document.getElementById('np-artist').textContent='Then refresh';
+    if(e.message!=='401'){
+      document.getElementById('np-title').textContent='Nothing playing';
+      document.getElementById('np-artist').textContent='Open Spotify and play something';
+    }
   }
 }
 
@@ -656,6 +692,7 @@ async function loadTopArtists(){
       d=await spFetch('https://api.spotify.com/v1/me/top/artists?limit=10&time_range=medium_term');
     }
     topArtistNames=d.items.map(a=>a.name);
+    cachedTopArtists=d.items;
     document.getElementById('s-artists').textContent=d.items.length;
     document.getElementById('ins-artists').textContent=d.items.length;
     const el=document.getElementById('top-artists');
@@ -675,7 +712,8 @@ async function loadTopArtists(){
 // ── RECENT TRACKS ─────────────────────────────────────────────────────────────
 async function loadRecentTracks(){
   try{
-    const d=await spFetch('https://api.spotify.com/v1/me/player/recently-played?limit=8');
+    const d=await spFetch('https://api.spotify.com/v1/me/player/recently-played?limit=20');
+    cachedRecentTracks=d.items;
     document.getElementById('s-recent').textContent=d.items.length;
     document.getElementById('ins-recent').textContent=d.items.length;
     const el=document.getElementById('recent-tracks');
@@ -692,7 +730,8 @@ async function loadRecentTracks(){
 // ── TOP TRACKS ────────────────────────────────────────────────────────────────
 async function loadTopTracks(){
   try{
-    const d=await spFetch('https://api.spotify.com/v1/me/top/tracks?limit=8&time_range=short_term');
+    const d=await spFetch('https://api.spotify.com/v1/me/top/tracks?limit=20&time_range=short_term');
+    cachedTopTracks=d.items;
     document.getElementById('s-tracks').textContent=d.items.length;
     document.getElementById('ins-tracks').textContent=d.items.length;
     const el=document.getElementById('top-tracks-ins');
@@ -794,25 +833,20 @@ async function loadReverb(){
 }
 
 // ── LYRIC ─────────────────────────────────────────────────────────────────────
-async function loadLyric(tracks){
+function loadLyric(tracks){
+  // Pick a lyric based on day - rotates daily
   const day=new Date().getDate();
   let lyric=LYRICS[day%LYRICS.length];
+  // If we have top tracks, use the track name/artist to personalise the attribution
   if(tracks&&tracks.length){
     const t=tracks[day%tracks.length];
-    if(CONFIG.GENIUS_KEY){
-      try{
-        const q=t.name+' '+t.artists[0].name;
-        const r=await fetch('https://api.genius.com/search?q='+encodeURIComponent(q),{headers:{Authorization:'Bearer '+CONFIG.GENIUS_KEY}});
-        const d=await r.json();
-        const hit=d.response?.hits?.[0]?.result;
-        if(hit) lyric={text:'"'+esc(hit.title)+'"',song:hit.title,artist:hit.primary_artist?.name||t.artists[0].name};
-      }catch(e){}
-    } else {
-      lyric={text:'Playing: '+t.name,song:t.name,artist:t.artists[0].name};
-    }
+    // Blend: keep the curated lyric text but show current top track artist
+    lyric={...lyric, nowPlaying: t.name+' by '+t.artists[0].name};
   }
-  document.getElementById('lyric-text').textContent=lyric.text;
-  document.getElementById('lyric-attr').innerHTML=lyric.song+' — <span>'+lyric.artist+'</span>';
+  const el=document.getElementById('lyric-text');
+  const attr=document.getElementById('lyric-attr');
+  if(el) el.textContent=lyric.text;
+  if(attr) attr.innerHTML=lyric.song+' — <span>'+lyric.artist+'</span>';
 }
 
 // ── DAILY TAB ─────────────────────────────────────────────────────────────────
@@ -959,20 +993,43 @@ async function studioRecord(){
 
 function studioPlay(){
   if(studioPlaying){studioStop();return;}
+  // Check there's something to play
+  const hasTracks = audioURLs.some(u=>u!==null);
+  if(!hasTracks){
+    alert('Record something first — select a track and hit the record button');
+    return;
+  }
   studioPlaying=true;
   document.getElementById('tp-play').textContent='⏸';
+  // Launch all unmuted tracks simultaneously using AudioContext for tight sync
+  const ctx = new (window.AudioContext||window.webkitAudioContext)();
+  const startTime = ctx.currentTime + 0.1; // small buffer for sync
+  const promises = [];
   [0,1,2,3].forEach(i=>{
     if(audioURLs[i]&&!mutedTracks[i]){
-      const a=new Audio(audioURLs[i]);
-      audioEls[i]=a;
-      a.play();
+      promises.push(
+        fetch(audioURLs[i])
+          .then(r=>r.arrayBuffer())
+          .then(buf=>ctx.decodeAudioData(buf))
+          .then(decoded=>{
+            const src=ctx.createBufferSource();
+            src.buffer=decoded;
+            src.connect(ctx.destination);
+            src.start(startTime);
+            audioEls[i]=src;
+          })
+      );
     }
   });
+  Promise.all(promises).catch(e=>console.error('Playback error:',e));
+  clearInterval(tpTimer);
+  tpElapsed=0;
   tpTimer=setInterval(()=>{
     tpElapsed++;
     document.getElementById('tp-time').textContent=fmtSec(tpElapsed);
   },1000);
 }
+
 
 function studioStop(){
   studioPlaying=false;
@@ -996,11 +1053,39 @@ function clearTrack(idx){
 
 function renderRecordings(){
   const el=document.getElementById('saved-list');
-  if(!recordings.length){el.innerHTML='<div class="empty-msg">No recordings yet</div>';return;}
+  if(!recordings.length){el.innerHTML='<div class="empty-msg">No recordings yet — select a track and hit &#9210;</div>';return;}
   el.innerHTML='';
-  recordings.slice(0,5).forEach((r,i)=>{
-    el.innerHTML+='<div class="saved-item"><span style="font-size:16px;">\uD83C\uDFB8</span><div style="flex:1"><div class="saved-name">'+esc(r.name)+'</div><div class="saved-meta">'+r.dur+' &middot; Track '+(r.trackIdx+1)+' &middot; '+r.date+'</div></div>'+(audioURLs[r.trackIdx]?'<audio controls src="'+audioURLs[r.trackIdx]+'" style="height:28px;width:120px;"></audio>':'')+'</div>';
+  recordings.forEach((r,i)=>{
+    const url=audioURLs[r.trackIdx];
+    const trackColors=['var(--amber)','var(--blue)','var(--rose)','var(--green)'];
+    const col=trackColors[r.trackIdx]||'var(--amber)';
+    el.innerHTML+='<div class="saved-item">'+
+      '<div style="width:4px;height:36px;border-radius:2px;background:'+col+';flex-shrink:0"></div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div class="saved-name">'+esc(r.name)+'</div>'+
+        '<div class="saved-meta">'+r.dur+' &middot; Track '+(r.trackIdx+1)+' &middot; '+r.date+'</div>'+
+      '</div>'+
+      (url?'<audio controls src="'+url+'" style="height:28px;max-width:120px;"></audio>':'')+
+      '<button onclick="deleteRecording('+i+')" style="background:var(--rose-dim);color:var(--rose);border:1px solid var(--rose);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-family:Inter,sans-serif;flex-shrink:0;">&#x2715;</button>'+
+    '</div>';
   });
+}
+
+function deleteRecording(idx){
+  if(!confirm('Delete this recording?')) return;
+  const trackIdx=recordings[idx].trackIdx;
+  recordings.splice(idx,1);
+  // Clear the audio URL for that track slot if no other recording uses it
+  const stillUsed=recordings.some(r=>r.trackIdx===trackIdx);
+  if(!stillUsed){
+    audioURLs[trackIdx]=null;
+    audioBlobs[trackIdx]=null;
+    document.getElementById('dur-'+trackIdx).textContent='0:00';
+    initWaveforms();
+  }
+  localStorage.setItem('fb_recs',JSON.stringify(recordings.map(r=>({...r,url:null}))));
+  renderRecordings();
+  updateInsights();
 }
 
 // ── INSIGHTS ──────────────────────────────────────────────────────────────────
@@ -1053,6 +1138,21 @@ function getSpecs(model) {
   return null;
 }
 
+function getWikiImage(model, callback){
+  // Use Wikipedia API to find an image for the guitar model
+  const search = model.replace(/['"]/g,'');
+  const url = 'https://en.wikipedia.org/w/api.php?action=query&titles='+encodeURIComponent(search)+'&prop=pageimages&format=json&pithumbsize=400&origin=*';
+  fetch(url)
+    .then(r=>r.json())
+    .then(d=>{
+      const pages=d.query?.pages;
+      if(!pages) return callback(null);
+      const page=Object.values(pages)[0];
+      callback(page?.thumbnail?.source||null);
+    })
+    .catch(()=>callback(null));
+}
+
 function renderGearCarousel() {
   const el = document.getElementById('gear-carousel');
   if (!el) return;
@@ -1063,17 +1163,40 @@ function renderGearCarousel() {
     const div = document.createElement('div');
     div.className = 'gear-card';
     div.onclick = () => openGearDetail(i);
-    div.innerHTML = '<div class="gear-img-placeholder">&#127928;</div>' +
+    div.innerHTML = '<div class="gear-img-placeholder" id="gear-thumb-'+i+'">&#127928;</div>' +
       '<div class="gear-info"><div class="gear-name">' + esc(g.model) + '</div>' +
       '<div class="gear-meta">' + (g.year ? g.year + ' · ' : '') + esc(g.colour||'') + '</div>' +
       '<div class="gear-meta" style="color:var(--amber);margin-top:3px">' + esc(g.type) + '</div></div>';
     el.appendChild(div);
+    // Try to load image from Wikipedia
+    if(g.wikiImg){
+      loadGearThumb(i, g.wikiImg);
+    } else {
+      getWikiImage(g.model, (url)=>{
+        if(url){
+          guitars[i].wikiImg = url;
+          localStorage.setItem('fb_guitars', JSON.stringify(guitars));
+          loadGearThumb(i, url);
+        }
+      });
+    }
   });
   const addCard = document.createElement('div');
   addCard.className = 'gear-card add-card';
   addCard.onclick = openAddGear;
   addCard.innerHTML = '<div style="font-size:36px;color:var(--amber)">+</div><div style="font-size:13px;font-weight:600;color:var(--text2)">Add a guitar</div>';
   el.appendChild(addCard);
+}
+
+function loadGearThumb(i, url){
+  const el = document.getElementById('gear-thumb-'+i);
+  if(!el) return;
+  const img = document.createElement('img');
+  img.className = 'gear-img';
+  img.src = url;
+  img.alt = guitars[i]?.model||'';
+  img.onerror = ()=>{}; // keep emoji if image fails
+  el.replaceWith(img);
 }
 
 function openAddGear() {
@@ -1147,6 +1270,127 @@ function closeGearModal(id) {
   document.getElementById(id).style.display = 'none';
 }
 
+
+// ── INSIGHT DETAIL ────────────────────────────────────────────────────────────
+let cachedTopArtists=[], cachedTopTracks=[], cachedRecentTracks=[];
+
+function showInsightDetail(type){
+  const modal=document.getElementById('insights-modal');
+  const content=document.getElementById('insights-modal-content');
+  let h='';
+  if(type==='artists'){
+    h='<div style="font-family:Playfair Display,serif;font-size:22px;font-weight:700;margin-bottom:20px;">Your Top Artists</div>';
+    if(!cachedTopArtists.length){h+='<div style="color:var(--text3)">No data yet</div>';}
+    else{
+      h+='<div style="display:flex;flex-direction:column;gap:8px;">';
+      cachedTopArtists.forEach((a,i)=>{
+        const img=a.images?.[0]?.url;
+        h+='<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface3);border-radius:8px;">'+
+          '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--text3);min-width:18px">'+(i+1)+'</span>'+
+          (img?'<img src="'+img+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover">':'<div style="width:40px;height:40px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center">&#127925;</div>')+
+          '<div style="flex:1"><div style="font-size:13px;font-weight:500">'+esc(a.name)+'</div>'+
+          '<div style="font-size:11px;color:var(--text3)">'+(a.genres?.slice(0,2).join(', ')||'')+'</div></div>'+
+          '<div style="font-size:11px;color:var(--amber)">'+a.popularity+'% pop</div>'+
+          '</div>';
+      });
+      h+='</div>';
+    }
+  } else if(type==='tracks'){
+    h='<div style="font-family:Playfair Display,serif;font-size:22px;font-weight:700;margin-bottom:20px;">Your Top Tracks</div>';
+    if(!cachedTopTracks.length){h+='<div style="color:var(--text3)">No data yet</div>';}
+    else{
+      h+='<div style="display:flex;flex-direction:column;gap:8px;">';
+      cachedTopTracks.forEach((t,i)=>{
+        const img=t.album?.images?.[0]?.url;
+        const dur=fmtMs(t.duration_ms||0);
+        h+='<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface3);border-radius:8px;">'+
+          '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--text3);min-width:18px">'+(i+1)+'</span>'+
+          (img?'<img src="'+img+'" style="width:36px;height:36px;border-radius:6px;object-fit:cover">':'<div style="width:36px;height:36px;border-radius:6px;background:var(--surface2)"></div>')+
+          '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(t.name)+'</div>'+
+          '<div style="font-size:11px;color:var(--text3)">'+esc(t.artists?.[0]?.name||'')+'</div></div>'+
+          '<div style="font-size:11px;color:var(--text3);font-family:JetBrains Mono,monospace">'+dur+'</div>'+
+          '</div>';
+      });
+      h+='</div>';
+    }
+  } else if(type==='recent'){
+    h='<div style="font-family:Playfair Display,serif;font-size:22px;font-weight:700;margin-bottom:20px;">Recently Played</div>';
+    if(!cachedRecentTracks.length){h+='<div style="color:var(--text3)">No data yet</div>';}
+    else{
+      h+='<div style="display:flex;flex-direction:column;gap:8px;">';
+      cachedRecentTracks.forEach(item=>{
+        const t=item.track;
+        const img=t.album?.images?.[0]?.url;
+        const ago=timeAgo(new Date(item.played_at));
+        h+='<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface3);border-radius:8px;">'+
+          (img?'<img src="'+img+'" style="width:36px;height:36px;border-radius:6px;object-fit:cover">':'<div style="width:36px;height:36px;border-radius:6px;background:var(--surface2)"></div>')+
+          '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(t.name)+'</div>'+
+          '<div style="font-size:11px;color:var(--text3)">'+esc(t.artists?.[0]?.name||'')+'</div></div>'+
+          '<div style="font-size:11px;color:var(--text3)">'+ago+'</div>'+
+          '</div>';
+      });
+      h+='</div>';
+    }
+  } else if(type==='ideas'){
+    h='<div style="font-family:Playfair Display,serif;font-size:22px;font-weight:700;margin-bottom:20px;">All Song Ideas</div>';
+    if(!ideas.length){h+='<div style="color:var(--text3)">No ideas logged yet</div>';}
+    else{
+      h+='<div style="display:flex;flex-direction:column;gap:8px;">';
+      ideas.forEach((idea,i)=>{
+        h+='<div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--surface3);border-radius:8px;">'+
+          '<div style="width:10px;height:10px;border-radius:50%;background:'+idea.color+';margin-top:3px;flex-shrink:0"></div>'+
+          '<div style="flex:1"><div style="font-size:13px;line-height:1.5">'+esc(idea.text)+'</div>'+
+          '<div style="font-size:10px;color:var(--text3);margin-top:4px">'+idea.date+'</div></div>'+
+          '<button onclick="deleteIdeaFromInsights('+i+',this)" style="background:var(--rose-dim);color:var(--rose);border:1px solid var(--rose);border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;font-family:Inter,sans-serif">&#x2715;</button>'+
+          '</div>';
+      });
+      h+='</div>';
+    }
+  } else if(type==='recordings'){
+    h='<div style="font-family:Playfair Display,serif;font-size:22px;font-weight:700;margin-bottom:20px;">Studio Recordings</div>';
+    if(!recordings.length){h+='<div style="color:var(--text3)">No recordings yet</div>';}
+    else{
+      h+='<div style="display:flex;flex-direction:column;gap:8px;">';
+      const cols=['var(--amber)','var(--blue)','var(--rose)','var(--green)'];
+      recordings.forEach((r,i)=>{
+        const url=audioURLs[r.trackIdx];
+        h+='<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface3);border-radius:8px;">'+
+          '<div style="width:4px;height:36px;border-radius:2px;background:'+cols[r.trackIdx]+';flex-shrink:0"></div>'+
+          '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">'+esc(r.name)+'</div>'+
+          '<div style="font-size:11px;color:var(--text3)">'+r.dur+' · Track '+(r.trackIdx+1)+' · '+r.date+'</div></div>'+
+          (url?'<audio controls src="'+url+'" style="height:28px;max-width:110px"></audio>':'')+
+          '<button onclick="deleteRecording('+i+')" style="background:var(--rose-dim);color:var(--rose);border:1px solid var(--rose);border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;font-family:Inter,sans-serif">&#x2715;</button>'+
+          '</div>';
+      });
+      h+='</div>';
+    }
+  } else if(type==='top1'){
+    h='<div style="font-family:Playfair Display,serif;font-size:22px;font-weight:700;margin-bottom:20px;">Your #1 Artist</div>';
+    const a=cachedTopArtists[0];
+    if(!a){h+='<div style="color:var(--text3)">No data yet</div>';}
+    else{
+      const img=a.images?.[0]?.url;
+      h+='<div style="text-align:center;padding:20px 0">'+
+        (img?'<img src="'+img+'" style="width:100px;height:100px;border-radius:50%;object-fit:cover;margin-bottom:16px">':'')+
+        '<div style="font-size:28px;font-weight:700;margin-bottom:8px">'+esc(a.name)+'</div>'+
+        '<div style="font-size:13px;color:var(--text3);margin-bottom:16px">'+(a.genres?.slice(0,3).join(' · ')||'')+'</div>'+
+        '<div style="display:inline-flex;align-items:center;gap:6px;padding:6px 16px;background:var(--amber-dim);border:1px solid rgba(245,166,35,.3);border-radius:20px;font-size:13px;font-weight:600;color:var(--amber)">'+a.popularity+'% popularity on Spotify</div>'+
+        '</div>'+
+        '<a href="'+esc(a.external_urls?.spotify||'#')+'" target="_blank" style="display:block;text-align:center;padding:10px;background:var(--green);color:#0e0e0f;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px;margin-top:8px">Open in Spotify</a>';
+    }
+  }
+  content.innerHTML=h;
+  modal.style.display='flex';
+}
+
+function deleteIdeaFromInsights(idx, btn){
+  ideas.splice(idx,1);
+  localStorage.setItem('fb_ideas',JSON.stringify(ideas));
+  renderIdeas();
+  updateInsights();
+  // Refresh the modal
+  showInsightDetail('ideas');
+}
 init();
 </script>
 </body>
