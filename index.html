@@ -811,7 +811,7 @@ async function loadTopArtists(){
       row.className='artist-row';
       row.innerHTML='<span class="artist-rank">'+(i+1)+'</span>'+
         '<div class="artist-av" style="background:'+BGCOLORS[i%5]+'">'+
-        (img?'<img src="'+img+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover">':'&#9835;')+
+        (img?'<img src="'+img+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover">':'♪')+
         '</div>'+
         '<div style="flex:1"><div class="artist-name">'+esc(a.name)+'</div>'+
         '<div class="artist-genre">'+esc(genres)+'</div></div>';
@@ -982,8 +982,8 @@ async function loadGigs(){
         '<div class="gig-date"><div class="gig-day">'+day+'</div><div class="gig-mon">'+mon+'</div></div>'+
         '<div class="gig-div"></div>'+
         '<div class="gig-info">'+
-          '<div class="gig-artist-name">'+esc(ev.name)+(matched?'<span style="font-size:10px;color:var(--green);margin-left:8px;">&#10003; your artist</span>':'')+'</div>'+
-          '<div class="gig-venue">'+vname+' &middot; <a href="'+ticketUrl+'" target="_blank">Tickets</a></div>'+
+          '<div class="gig-artist-name">'+esc(ev.name)+(matched?'<span style="font-size:10px;color:var(--green);margin-left:8px;">✓ your artist</span>':'')+'</div>'+
+          '<div class="gig-venue">'+vname+' · <a href="'+ticketUrl+'" target="_blank">Tickets</a></div>'+
         '</div>'+
         '<span class="gig-city '+cls+'">'+cityLabel+'</span>'+
       '</div>';
@@ -1006,11 +1006,11 @@ async function loadReverb(){
     items.slice(0,4).forEach(item=>{
       const price=item.price?.amount_cents?'£'+(item.price.amount_cents/100).toFixed(0):'POA';
       const img=item.photos?.[0]?.['_links']?.['large_crop']?.href||'';
-      el.innerHTML+='<a class="reverb-item" href="'+esc(item._links?.web?.href||'#')+'" target="_blank"><div class="reverb-badge">Used</div>'+(img?'<img class="reverb-img" src="'+img+'" alt="">':'<div style="font-size:24px;margin-bottom:6px;">&#127928;</div>')+'<div class="reverb-name">'+esc(item.title)+'</div><div class="reverb-meta">'+esc(item.condition?.display_name||'')+'</div><div class="reverb-price">'+price+'</div></a>';
+      el.innerHTML+='<a class="reverb-item" href="'+esc(item._links?.web?.href||'#')+'" target="_blank"><div class="reverb-badge">Used</div>'+(img?'<img class="reverb-img" src="'+img+'" alt="">':'<div style="font-size:24px;margin-bottom:6px;">🎸</div>')+'<div class="reverb-name">'+esc(item.title)+'</div><div class="reverb-meta">'+esc(item.condition?.display_name||'')+'</div><div class="reverb-price">'+price+'</div></a>';
     });
     el.innerHTML+='</div>';
   }catch(e){
-    el.innerHTML='<div class="reverb-grid">'+['Fender Telecaster 72','Gibson SG Standard','Boss DD-8 Delay','Strymon Iridium'].map((n,i)=>'<div class="reverb-item"><div class="reverb-badge">Used</div><div style="font-size:22px;margin-bottom:6px;">&#127928;</div><div class="reverb-name">'+n+'</div><div class="reverb-meta">Very Good</div><div class="reverb-price">£'+(350+i*120)+'</div></div>').join('')+'</div>';
+    el.innerHTML='<div class="reverb-grid">'+['Fender Telecaster 72','Gibson SG Standard','Boss DD-8 Delay','Strymon Iridium'].map((n,i)=>'<div class="reverb-item"><div class="reverb-badge">Used</div><div style="font-size:22px;margin-bottom:6px;">🎸</div><div class="reverb-name">'+n+'</div><div class="reverb-meta">Very Good</div><div class="reverb-price">£'+(350+i*120)+'</div></div>').join('')+'</div>';
   }
 }
 
@@ -1034,7 +1034,7 @@ async function loadLyric(tracks){
       if(hit){
         // Show the track title as lyric teaser + link
         el.innerHTML='"'+esc(hit.title)+'"<div style="margin-top:12px;font-size:13px;color:var(--text3)">'+
-          '<a href="'+esc(hit.url)+'" target="_blank" style="color:var(--amber);text-decoration:none;">View full lyrics on Genius &#8594;</a></div>';
+          '<a href="'+esc(hit.url)+'" target="_blank" style="color:var(--amber);text-decoration:none;">View full lyrics on Genius →</a></div>';
         attr.innerHTML=esc(hit.title)+' — <span>'+esc(hit.primary_artist?.name||t.artists[0].name)+'</span>';
         return;
       }
@@ -1085,7 +1085,7 @@ function renderArtistNews(artists){
   if(!artists||!artists.length){el.innerHTML='<div class="empty-msg">No artists loaded yet</div>';return;}
   artists.slice(0,5).forEach((a,i)=>{
     if(!a||!a.name) return;
-    el.innerHTML+='<div class="news-item"><div class="news-artist-lbl" style="color:'+colors[i]+'">'+esc(a.name)+'</div><div class="news-headline">'+headlines[i%headlines.length]+'</div><div class="news-source">'+sources[i%sources.length]+' &middot; '+times[i]+'</div></div>';
+    el.innerHTML+='<div class="news-item"><div class="news-artist-lbl" style="color:'+colors[i]+'">'+esc(a.name)+'</div><div class="news-headline">'+headlines[i%headlines.length]+'</div><div class="news-source">'+sources[i%sources.length]+' · '+times[i]+'</div></div>';
   });
 }
 
@@ -1253,7 +1253,7 @@ function studioPlay(){
   if(soloAudio){ soloAudio.pause(); soloAudio=null; }
 
   studioPlaying = true;
-  document.getElementById('tp-play').innerHTML = '&#9208; All';
+  document.getElementById('tp-play').innerHTML = '⏸ All';
 
   const ctx = new (window.AudioContext||window.webkitAudioContext)();
   const startTime = ctx.currentTime + 0.05;
@@ -1291,7 +1291,7 @@ function studioPlay(){
 
 function studioStop(){
   studioPlaying = false;
-  document.getElementById('tp-play').innerHTML = '&#9654; All';
+  document.getElementById('tp-play').innerHTML = '▶ All';
   // Stop AudioContext sources
   audioEls.forEach((a,i)=>{ if(a && a.stop){ try{a.stop();}catch(e){} audioEls[i]=null; } });
   // Stop solo audio too
@@ -1387,14 +1387,14 @@ function renderRecordings(){
 
     el.innerHTML += '<div class="saved-item" style="flex-wrap:wrap;gap:8px;">' +
       '<div style="display:flex;align-items:center;gap:6px;">' +
-        (isLocked ? '<span style="font-size:14px;">&#128274;</span>' : '<span style="font-size:14px;">&#127928;</span>') +
+        (isLocked ? '<span style="font-size:14px;">🔒</span>' : '<span style="font-size:14px;">🎸</span>') +
         (trackDots ? '<div style="display:flex;gap:3px;align-items:center;">'+trackDots+'</div>' : '') +
       '</div>' +
       '<div style="flex:1;min-width:0;">' +
         '<div class="saved-name">'+esc(r.name)+'</div>' +
         '<div class="saved-meta">'+(isLocked ? (r.trackCount||1)+' track'+(r.trackCount!==1?'s':'')+' · ' : '')+(r.dur||'')+(r.dur?' · ':'')+r.date+'</div>' +
       '</div>' +
-      (isLocked && r.tracks ? '<button onclick="playLockedIdea('+i+')" class="t-btn" title="Play">&#9654;</button>' : '') +
+      (isLocked && r.tracks ? '<button onclick="playLockedIdea('+i+')" class="t-btn" title="Play">▶</button>' : '') +
       '<button onclick="deleteRecording('+i+')" class="t-btn" style="color:var(--rose);" title="Delete">&#x2715;</button>' +
     '</div>';
   });
@@ -1445,7 +1445,7 @@ function showInsightDetail(type){
         const img=a.images?.[0]?.url;
         h+='<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface3);border-radius:8px;">'+
           '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--text3);min-width:18px">'+(i+1)+'</span>'+
-          (img?'<img src="'+img+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover">':'<div style="width:40px;height:40px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center">&#127925;</div>')+
+          (img?'<img src="'+img+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover">':'<div style="width:40px;height:40px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center">🎵</div>')+
           '<div style="flex:1"><div style="font-size:13px;font-weight:500">'+esc(a.name)+'</div>'+
           '<div style="font-size:11px;color:var(--text3)">'+(a.genres?.slice(0,2).join(', ')||'')+'</div></div>'+
           '<div style="font-size:11px;color:var(--amber)">'+a.popularity+'% pop</div>'+
