@@ -368,69 +368,23 @@ nav{display:flex;align-items:center;padding:0 28px;height:58px;border-bottom:1px
     <div>
       <div class="card">
         <div class="card-label">Multitrack recorder &middot; 4 layers</div>
-        <div id="track-rows-container">
-          <!-- Track 1 -->
-          <div class="track-row-s" id="track-row-0">
-            <div class="track-color" style="background:var(--amber)"></div>
-            <div class="track-label-s" style="min-width:70px;">&#127928; T1</div>
-            <div class="waveform" id="wf-0"></div>
-            <span class="track-dur" id="dur-0">0:00</span>
-            <div style="display:flex;gap:4px;">
-              <button class="t-btn" id="rec-btn-0" onclick="trackRecord(0)" title="Record">&#9210;</button>
-              <button class="t-btn" id="play-btn-0" onclick="trackPlay(0)" title="Play">&#9654;</button>
-              <button class="t-btn" id="mute-btn-0" onclick="toggleMute(this,0)" title="Mute">M</button>
-              <button class="t-btn" onclick="clearTrack(0)" title="Clear">&#x2715;</button>
-            </div>
-          </div>
-          <!-- Track 2 -->
-          <div class="track-row-s" id="track-row-1">
-            <div class="track-color" style="background:var(--blue)"></div>
-            <div class="track-label-s" style="min-width:70px;">&#127928; T2</div>
-            <div class="waveform" id="wf-1"></div>
-            <span class="track-dur" id="dur-1">0:00</span>
-            <div style="display:flex;gap:4px;">
-              <button class="t-btn" id="rec-btn-1" onclick="trackRecord(1)" title="Record">&#9210;</button>
-              <button class="t-btn" id="play-btn-1" onclick="trackPlay(1)" title="Play">&#9654;</button>
-              <button class="t-btn" id="mute-btn-1" onclick="toggleMute(this,1)" title="Mute">M</button>
-              <button class="t-btn" onclick="clearTrack(1)" title="Clear">&#x2715;</button>
-            </div>
-          </div>
-          <!-- Track 3 -->
-          <div class="track-row-s" id="track-row-2">
-            <div class="track-color" style="background:var(--rose)"></div>
-            <div class="track-label-s" style="min-width:70px;">&#127908; T3</div>
-            <div class="waveform" id="wf-2"></div>
-            <span class="track-dur" id="dur-2">0:00</span>
-            <div style="display:flex;gap:4px;">
-              <button class="t-btn" id="rec-btn-2" onclick="trackRecord(2)" title="Record">&#9210;</button>
-              <button class="t-btn" id="play-btn-2" onclick="trackPlay(2)" title="Play">&#9654;</button>
-              <button class="t-btn" id="mute-btn-2" onclick="toggleMute(this,2)" title="Mute">M</button>
-              <button class="t-btn" onclick="clearTrack(2)" title="Clear">&#x2715;</button>
-            </div>
-          </div>
-          <!-- Track 4 -->
-          <div class="track-row-s" id="track-row-3">
-            <div class="track-color" style="background:var(--green)"></div>
-            <div class="track-label-s" style="min-width:70px;">&#127925; T4</div>
-            <div class="waveform" id="wf-3"></div>
-            <span class="track-dur" id="dur-3">0:00</span>
-            <div style="display:flex;gap:4px;">
-              <button class="t-btn" id="rec-btn-3" onclick="trackRecord(3)" title="Record">&#9210;</button>
-              <button class="t-btn" id="play-btn-3" onclick="trackPlay(3)" title="Play">&#9654;</button>
-              <button class="t-btn" id="mute-btn-3" onclick="toggleMute(this,3)" title="Mute">M</button>
-              <button class="t-btn" onclick="clearTrack(3)" title="Clear">&#x2715;</button>
-            </div>
-          </div>
+        <div>
+          <div class="track-row-s"><div class="track-color" style="background:var(--amber)"></div><div class="track-label-s">&#127928; Track 1</div><div class="waveform" id="wf-0"></div><span class="track-dur" id="dur-0">0:00</span><div style="display:flex;gap:5px;"><button class="t-btn" onclick="toggleMute(this,0)">M</button><button class="t-btn" onclick="clearTrack(0)">&#x2715;</button></div></div>
+          <div class="track-row-s"><div class="track-color" style="background:var(--blue)"></div><div class="track-label-s">&#127928; Track 2</div><div class="waveform" id="wf-1"></div><span class="track-dur" id="dur-1">0:00</span><div style="display:flex;gap:5px;"><button class="t-btn" onclick="toggleMute(this,1)">M</button><button class="t-btn" onclick="clearTrack(1)">&#x2715;</button></div></div>
+          <div class="track-row-s"><div class="track-color" style="background:var(--rose)"></div><div class="track-label-s">&#127908; Track 3</div><div class="waveform" id="wf-2"></div><span class="track-dur" id="dur-2">0:00</span><div style="display:flex;gap:5px;"><button class="t-btn" onclick="toggleMute(this,2)">M</button><button class="t-btn" onclick="clearTrack(2)">&#x2715;</button></div></div>
+          <div class="track-row-s"><div class="track-color" style="background:var(--green)"></div><div class="track-label-s">&#127925; Track 4</div><div class="waveform" id="wf-3"></div><span class="track-dur" id="dur-3">0:00</span><div style="display:flex;gap:5px;"><button class="t-btn" onclick="toggleMute(this,3)">M</button><button class="t-btn" onclick="clearTrack(3)">&#x2715;</button></div></div>
         </div>
-        <!-- Master transport -->
-        <div class="transport" style="margin-top:10px;">
+        <div class="transport">
           <span class="transport-time" id="tp-time">0:00</span>
-          <button class="tp-btn" onclick="studioStop()" title="Stop all">&#9209;</button>
-          <button class="tp-btn" id="tp-play" onclick="studioPlay()" title="Play all tracks">&#9654; All</button>
-          <button class="tp-btn" onclick="lockItIn()" title="Commit all tracks as a song idea" style="background:var(--amber);color:var(--ink);font-weight:700;border-color:var(--amber);min-width:80px;">&#128274; Lock in</button>
+          <button class="tp-btn" onclick="studioStop()">&#9209;</button>
+          <button class="tp-btn" id="tp-play" onclick="studioPlay()">&#9654;</button>
+          <button class="rec-btn" id="tp-rec" onclick="studioRecord()">&#9210;</button>
+          <select id="rec-track" style="background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px;font-family:'Inter',sans-serif;">
+            <option value="0">Track 1</option><option value="1">Track 2</option><option value="2">Track 3</option><option value="3">Track 4</option>
+          </select>
           <span class="bpm-lbl">&#9833; = 92 BPM</span>
         </div>
-        <div id="rec-status" style="font-size:11px;color:var(--rose);margin-top:8px;min-height:16px;"></div>
+        <div id="rec-status" style="font-size:11px;color:var(--rose);margin-top:8px;display:none;">Recording… press &#9210; again to stop</div>
       </div>
       <div class="card gap-top">
         <div class="card-label">Saved recordings</div>
@@ -546,18 +500,10 @@ nav{display:flex;align-items:center;padding:0 28px;height:58px;border-bottom:1px
 </div>
 
 <script>
-console.log('Fretboard JS starting...');
-window.onerror = function(msg, src, line, col, err) {
-  const d = document.createElement('div');
-  d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#e8445a;color:white;padding:12px;font-size:13px;z-index:9999;font-family:monospace;';
-  d.textContent = 'JS Error: ' + msg + ' (line ' + line + ')';
-  document.body.appendChild(d);
-};
 if(typeof CONFIG==='undefined'){
   document.getElementById('login-screen').innerHTML='<div style="text-align:center;padding:40px;"><div style="font-family:Playfair Display,serif;font-size:36px;color:#f5a623;margin-bottom:16px;">fretboard</div><div style="color:#e8445a;font-size:14px;max-width:380px;line-height:1.8;">config.js not found. Make sure config.js is in the same folder as index.html and refresh.</div></div>';
 }
 
-console.log('CONFIG loaded, client_id:', typeof CONFIG !== 'undefined' ? CONFIG.SPOTIFY_CLIENT_ID?.slice(0,8)+'...' : 'MISSING');
 let token=null,npData=null,npInterval=null;
 let ideas=JSON.parse(localStorage.getItem('fb_ideas')||'[]');
 let recordings=JSON.parse(localStorage.getItem('fb_recs')||'[]');
@@ -677,7 +623,6 @@ async function spPost(url,body){
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function init(){
-  console.log('init() called');
   const loginScreen = document.getElementById('login-screen');
   const mainNav = document.getElementById('main-nav');
 
@@ -820,7 +765,7 @@ async function loadTopArtists(){
       row.className='artist-row';
       row.innerHTML='<span class="artist-rank">'+(i+1)+'</span>'+
         '<div class="artist-av" style="background:'+BGCOLORS[i%5]+'">'+
-        (img?'<img src="'+img+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover">':'♪')+
+        (img?'<img src="'+img+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover">':'&#9835;')+
         '</div>'+
         '<div style="flex:1"><div class="artist-name">'+esc(a.name)+'</div>'+
         '<div class="artist-genre">'+esc(genres)+'</div></div>';
@@ -991,8 +936,8 @@ async function loadGigs(){
         '<div class="gig-date"><div class="gig-day">'+day+'</div><div class="gig-mon">'+mon+'</div></div>'+
         '<div class="gig-div"></div>'+
         '<div class="gig-info">'+
-          '<div class="gig-artist-name">'+esc(ev.name)+(matched?'<span style="font-size:10px;color:var(--green);margin-left:8px;">✓ your artist</span>':'')+'</div>'+
-          '<div class="gig-venue">'+vname+' · <a href="'+ticketUrl+'" target="_blank">Tickets</a></div>'+
+          '<div class="gig-artist-name">'+esc(ev.name)+(matched?'<span style="font-size:10px;color:var(--green);margin-left:8px;">&#10003; your artist</span>':'')+'</div>'+
+          '<div class="gig-venue">'+vname+' &middot; <a href="'+ticketUrl+'" target="_blank">Tickets</a></div>'+
         '</div>'+
         '<span class="gig-city '+cls+'">'+cityLabel+'</span>'+
       '</div>';
@@ -1015,11 +960,11 @@ async function loadReverb(){
     items.slice(0,4).forEach(item=>{
       const price=item.price?.amount_cents?'£'+(item.price.amount_cents/100).toFixed(0):'POA';
       const img=item.photos?.[0]?.['_links']?.['large_crop']?.href||'';
-      el.innerHTML+='<a class="reverb-item" href="'+esc(item._links?.web?.href||'#')+'" target="_blank"><div class="reverb-badge">Used</div>'+(img?'<img class="reverb-img" src="'+img+'" alt="">':'<div style="font-size:24px;margin-bottom:6px;">🎸</div>')+'<div class="reverb-name">'+esc(item.title)+'</div><div class="reverb-meta">'+esc(item.condition?.display_name||'')+'</div><div class="reverb-price">'+price+'</div></a>';
+      el.innerHTML+='<a class="reverb-item" href="'+esc(item._links?.web?.href||'#')+'" target="_blank"><div class="reverb-badge">Used</div>'+(img?'<img class="reverb-img" src="'+img+'" alt="">':'<div style="font-size:24px;margin-bottom:6px;">&#127928;</div>')+'<div class="reverb-name">'+esc(item.title)+'</div><div class="reverb-meta">'+esc(item.condition?.display_name||'')+'</div><div class="reverb-price">'+price+'</div></a>';
     });
     el.innerHTML+='</div>';
   }catch(e){
-    el.innerHTML='<div class="reverb-grid">'+['Fender Telecaster 72','Gibson SG Standard','Boss DD-8 Delay','Strymon Iridium'].map((n,i)=>'<div class="reverb-item"><div class="reverb-badge">Used</div><div style="font-size:22px;margin-bottom:6px;">🎸</div><div class="reverb-name">'+n+'</div><div class="reverb-meta">Very Good</div><div class="reverb-price">£'+(350+i*120)+'</div></div>').join('')+'</div>';
+    el.innerHTML='<div class="reverb-grid">'+['Fender Telecaster 72','Gibson SG Standard','Boss DD-8 Delay','Strymon Iridium'].map((n,i)=>'<div class="reverb-item"><div class="reverb-badge">Used</div><div style="font-size:22px;margin-bottom:6px;">&#127928;</div><div class="reverb-name">'+n+'</div><div class="reverb-meta">Very Good</div><div class="reverb-price">£'+(350+i*120)+'</div></div>').join('')+'</div>';
   }
 }
 
@@ -1043,7 +988,7 @@ async function loadLyric(tracks){
       if(hit){
         // Show the track title as lyric teaser + link
         el.innerHTML='"'+esc(hit.title)+'"<div style="margin-top:12px;font-size:13px;color:var(--text3)">'+
-          '<a href="'+esc(hit.url)+'" target="_blank" style="color:var(--amber);text-decoration:none;">View full lyrics on Genius →</a></div>';
+          '<a href="'+esc(hit.url)+'" target="_blank" style="color:var(--amber);text-decoration:none;">View full lyrics on Genius &#8594;</a></div>';
         attr.innerHTML=esc(hit.title)+' — <span>'+esc(hit.primary_artist?.name||t.artists[0].name)+'</span>';
         return;
       }
@@ -1094,7 +1039,7 @@ function renderArtistNews(artists){
   if(!artists||!artists.length){el.innerHTML='<div class="empty-msg">No artists loaded yet</div>';return;}
   artists.slice(0,5).forEach((a,i)=>{
     if(!a||!a.name) return;
-    el.innerHTML+='<div class="news-item"><div class="news-artist-lbl" style="color:'+colors[i]+'">'+esc(a.name)+'</div><div class="news-headline">'+headlines[i%headlines.length]+'</div><div class="news-source">'+sources[i%sources.length]+' · '+times[i]+'</div></div>';
+    el.innerHTML+='<div class="news-item"><div class="news-artist-lbl" style="color:'+colors[i]+'">'+esc(a.name)+'</div><div class="news-headline">'+headlines[i%headlines.length]+'</div><div class="news-source">'+sources[i%sources.length]+' &middot; '+times[i]+'</div></div>';
   });
 }
 
@@ -1152,8 +1097,8 @@ function initWaveforms(){
   });
 }
 
-function updateWaveform(i){
-  const wf=document.getElementById('wf-'+i);
+function updateWaveform(trackIdx){
+  const wf=document.getElementById('wf-'+trackIdx);
   if(!wf) return;
   wf.innerHTML='';
   const cols=['var(--amber)','var(--blue)','var(--rose)','var(--green)'];
@@ -1161,196 +1106,101 @@ function updateWaveform(i){
     const b=document.createElement('div');
     b.className='wave-bar';
     b.style.height=(Math.random()*26+4)+'px';
-    b.style.background=cols[i];
+    b.style.background=cols[trackIdx];
     wf.appendChild(b);
   }
 }
 
-// ── PER-TRACK RECORD ─────────────────────────────────────────────────────────
-let activeRecordingTrack = null;
-
-async function trackRecord(idx){
-  // If already recording this track, stop it
-  if(isRecording && activeRecordingTrack === idx){
-    mediaRecorder.stop();
-    return;
-  }
-  // If recording a different track, stop that first
+async function studioRecord(){
   if(isRecording){
     mediaRecorder.stop();
-    await new Promise(r=>setTimeout(r,200));
+    isRecording=false;
+    document.getElementById('tp-rec').classList.remove('active');
+    document.getElementById('rec-status').style.display='none';
+    return;
   }
   try{
-    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-    recChunks = [];
-    activeRecordingTrack = idx;
-    mediaRecorder = new MediaRecorder(stream);
-
-    // Visual feedback - flash rec button red
-    const recBtn = document.getElementById('rec-btn-'+idx);
-    if(recBtn){ recBtn.style.background='var(--rose)'; recBtn.style.color='white'; recBtn.textContent='⏹'; }
-    document.getElementById('rec-status').textContent = 'Recording Track '+(idx+1)+'… tap ⏹ to stop';
-    document.getElementById('rec-status').style.color = 'var(--rose)';
-
-    // Timer
-    tpElapsed = 0;
-    clearInterval(tpTimer);
-    tpTimer = setInterval(()=>{
-      tpElapsed++;
-      document.getElementById('tp-time').textContent = fmtSec(tpElapsed);
-      document.getElementById('dur-'+idx).textContent = fmtSec(tpElapsed);
-    }, 1000);
-
-    mediaRecorder.ondataavailable = e => recChunks.push(e.data);
-    mediaRecorder.onstop = ()=>{
-      clearInterval(tpTimer);
-      isRecording = false;
-      activeRecordingTrack = null;
-
-      // Restore button
-      if(recBtn){ recBtn.style.background=''; recBtn.style.color=''; recBtn.textContent='⏺'; }
-      document.getElementById('rec-status').textContent = 'Track '+(idx+1)+' recorded. Hit Play to preview or record another track.';
-      document.getElementById('rec-status').style.color = 'var(--green)';
-
-      const blob = new Blob(recChunks, {type:'audio/webm'});
-      audioBlobs[idx] = blob;
-      audioURLs[idx] = URL.createObjectURL(blob);
-      updateWaveform(idx);
-      document.getElementById('dur-'+idx).textContent = fmtSec(tpElapsed||1);
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const trackIdx=parseInt(document.getElementById('rec-track').value);
+    recChunks=[];
+    mediaRecorder=new MediaRecorder(stream);
+    mediaRecorder.ondataavailable=e=>recChunks.push(e.data);
+    mediaRecorder.onstop=()=>{
+      const blob=new Blob(recChunks,{type:'audio/webm'});
+      audioBlobs[trackIdx]=blob;
+      audioURLs[trackIdx]=URL.createObjectURL(blob);
+      const dur=tpElapsed||5;
+      document.getElementById('dur-'+trackIdx).textContent=fmtSec(dur);
+      updateWaveform(trackIdx);
+      const name='Track '+(trackIdx+1)+' - '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      recordings.unshift({name,trackIdx,url:null,dur:fmtSec(dur),date:new Date().toLocaleDateString('en-GB')});
+      localStorage.setItem('fb_recs',JSON.stringify(recordings.map(r=>({...r,url:null}))));
+      renderRecordings();
+      updateInsights();
       stream.getTracks().forEach(t=>t.stop());
     };
-
     mediaRecorder.start();
-    isRecording = true;
+    isRecording=true;
+    document.getElementById('tp-rec').classList.add('active');
+    document.getElementById('rec-status').style.display='block';
+    tpElapsed=0;
+    if(tpTimer) clearInterval(tpTimer);
+    tpTimer=setInterval(()=>{
+      tpElapsed++;
+      document.getElementById('tp-time').textContent=fmtSec(tpElapsed);
+    },1000);
   }catch(e){
-    document.getElementById('rec-status').textContent = 'Mic access denied — check browser permissions';
-    document.getElementById('rec-status').style.color = 'var(--rose)';
+    alert('Microphone access needed. Please allow mic access and try again.');
   }
 }
 
-// ── PER-TRACK PLAY ────────────────────────────────────────────────────────────
-let soloAudio = null;
-
-function trackPlay(idx){
-  // Stop any solo playback
-  if(soloAudio){ soloAudio.pause(); soloAudio=null; }
-
-  const btn = document.getElementById('play-btn-'+idx);
-  if(!audioURLs[idx]){
-    document.getElementById('rec-status').textContent = 'Nothing recorded on Track '+(idx+1)+' yet';
-    document.getElementById('rec-status').style.color = 'var(--text3)';
-    return;
-  }
-  soloAudio = new Audio(audioURLs[idx]);
-  soloAudio.play();
-  btn.textContent = '⏸';
-  document.getElementById('rec-status').textContent = 'Playing Track '+(idx+1)+'…';
-  document.getElementById('rec-status').style.color = 'var(--text2)';
-  soloAudio.onended = ()=>{ btn.textContent = '▶'; soloAudio=null; document.getElementById('rec-status').textContent=''; };
-}
-
-// ── MASTER PLAY ALL ────────────────────────────────────────────────────────────
 function studioPlay(){
-  if(studioPlaying){ studioStop(); return; }
+  if(studioPlaying){studioStop();return;}
+  // Check there's something to play
   const hasTracks = audioURLs.some(u=>u!==null);
   if(!hasTracks){
-    document.getElementById('rec-status').textContent = 'Record at least one track first';
-    document.getElementById('rec-status').style.color = 'var(--text3)';
+    alert('Record something first — select a track and hit the record button');
     return;
   }
-  // Stop any solo playback
-  if(soloAudio){ soloAudio.pause(); soloAudio=null; }
-
-  studioPlaying = true;
-  document.getElementById('tp-play').innerHTML = '⏸ All';
-
+  studioPlaying=true;
+  document.getElementById('tp-play').textContent='⏸';
+  // Launch all unmuted tracks simultaneously using AudioContext for tight sync
   const ctx = new (window.AudioContext||window.webkitAudioContext)();
-  const startTime = ctx.currentTime + 0.05;
-  const fetches = [];
-
+  const startTime = ctx.currentTime + 0.1; // small buffer for sync
+  const promises = [];
   [0,1,2,3].forEach(i=>{
-    if(audioURLs[i] && !mutedTracks[i]){
-      fetches.push(
+    if(audioURLs[i]&&!mutedTracks[i]){
+      promises.push(
         fetch(audioURLs[i])
           .then(r=>r.arrayBuffer())
           .then(buf=>ctx.decodeAudioData(buf))
           .then(decoded=>{
-            const src = ctx.createBufferSource();
-            src.buffer = decoded;
+            const src=ctx.createBufferSource();
+            src.buffer=decoded;
             src.connect(ctx.destination);
             src.start(startTime);
-            audioEls[i] = src;
+            audioEls[i]=src;
           })
-          .catch(e=>console.warn('Track '+i+' playback error:',e))
       );
     }
   });
-
-  Promise.all(fetches).catch(e=>console.error('Playback error:',e));
-  document.getElementById('rec-status').textContent = 'Playing all tracks…';
-  document.getElementById('rec-status').style.color = 'var(--text2)';
-
+  Promise.all(promises).catch(e=>console.error('Playback error:',e));
   clearInterval(tpTimer);
-  tpElapsed = 0;
-  tpTimer = setInterval(()=>{
+  tpElapsed=0;
+  tpTimer=setInterval(()=>{
     tpElapsed++;
-    document.getElementById('tp-time').textContent = fmtSec(tpElapsed);
-  }, 1000);
+    document.getElementById('tp-time').textContent=fmtSec(tpElapsed);
+  },1000);
 }
+
 
 function studioStop(){
-  studioPlaying = false;
-  document.getElementById('tp-play').innerHTML = '▶ All';
-  // Stop AudioContext sources
-  audioEls.forEach((a,i)=>{ if(a && a.stop){ try{a.stop();}catch(e){} audioEls[i]=null; } });
-  // Stop solo audio too
-  if(soloAudio){ soloAudio.pause(); soloAudio=null; }
-  // Reset all per-track play buttons
-  [0,1,2,3].forEach(i=>{ const b=document.getElementById('play-btn-'+i); if(b) b.textContent='▶'; });
+  studioPlaying=false;
+  document.getElementById('tp-play').textContent='▶';
+  audioEls.forEach(a=>{if(a){a.pause();a.currentTime=0;}});
   clearInterval(tpTimer);
-  tpElapsed = 0;
-  document.getElementById('tp-time').textContent = '0:00';
-  document.getElementById('rec-status').textContent = '';
-}
-
-// ── LOCK IT IN ────────────────────────────────────────────────────────────────
-function lockItIn(){
-  const hasTracks = audioURLs.some(u=>u!==null);
-  if(!hasTracks){
-    document.getElementById('rec-status').textContent = 'Record at least one track before locking in';
-    document.getElementById('rec-status').style.color = 'var(--text3)';
-    return;
-  }
-  const name = prompt('Name this song idea:', 'Song idea ' + (recordings.length+1));
-  if(!name) return;
-
-  // Count how many tracks have content
-  const trackCount = audioURLs.filter(u=>u!==null).length;
-  const dur = Math.max(...[0,1,2,3].map(i=>i)); // placeholder - use tpElapsed as rough guide
-
-  const idea = {
-    name,
-    trackCount,
-    tracks: audioURLs.map((u,i)=>u ? {idx:i, url:u, dur: document.getElementById('dur-'+i).textContent} : null).filter(Boolean),
-    dur: document.getElementById('tp-time').textContent !== '0:00' ? document.getElementById('tp-time').textContent : [0,1,2,3].map(i=>document.getElementById('dur-'+i).textContent).find(d=>d!=='0:00') || '?',
-    date: new Date().toLocaleDateString('en-GB'),
-    locked: true
-  };
-
-  recordings.unshift(idea);
-  localStorage.setItem('fb_recs', JSON.stringify(recordings.map(r=>({...r, tracks: r.tracks ? r.tracks.map(t=>({...t, url:null})) : null}))));
-  renderRecordings();
-  updateInsights();
-
-  document.getElementById('rec-status').textContent = '"' + name + '" locked in with ' + trackCount + ' track' + (trackCount!==1?'s':'') + '!';
-  document.getElementById('rec-status').style.color = 'var(--green)';
-
-  // Optionally clear tracks ready for next idea
-  if(confirm('Clear tracks for a new idea? (Your locked-in song is saved)')){
-    [0,1,2,3].forEach(i=>{ audioURLs[i]=null; audioBlobs[i]=null; document.getElementById('dur-'+i).textContent='0:00'; });
-    initWaveforms();
-    document.getElementById('tp-time').textContent = '0:00';
-  }
+  tpElapsed=0;
+  document.getElementById('tp-time').textContent='0:00';
 }
 
 function toggleMute(btn,idx){
@@ -1359,82 +1209,251 @@ function toggleMute(btn,idx){
 }
 
 function clearTrack(idx){
-  if(audioURLs[idx] && !confirm('Clear Track '+(idx+1)+'?')) return;
-  audioBlobs[idx]=null; audioURLs[idx]=null;
+  audioBlobs[idx]=null;audioURLs[idx]=null;
   document.getElementById('dur-'+idx).textContent='0:00';
-  const recBtn=document.getElementById('rec-btn-'+idx);
-  if(recBtn){recBtn.style.background='';recBtn.style.color='';recBtn.textContent='⏺';}
-  const playBtn=document.getElementById('play-btn-'+idx);
-  if(playBtn) playBtn.textContent='▶';
-  // Reinit just this track's waveform
-  const wf=document.getElementById('wf-'+idx);
-  if(wf){
-    wf.innerHTML='';
-    const cols=['var(--amber)','var(--blue)','var(--rose)','var(--green)'];
-    for(let j=0;j<20;j++){
-      const b=document.createElement('div');
-      b.className='wave-bar'; b.style.height=(Math.random()*20+4)+'px';
-      b.style.background=cols[idx]; b.style.opacity='0.15';
-      wf.appendChild(b);
-    }
-  }
+  initWaveforms();
 }
 
 function renderRecordings(){
   const el=document.getElementById('saved-list');
-  if(!recordings.length){
-    el.innerHTML='<div class="empty-msg">No song ideas yet — record your tracks and hit Lock in</div>';
-    return;
-  }
+  if(!recordings.length){el.innerHTML='<div class="empty-msg">No recordings yet — select a track and hit &#9210;</div>';return;}
   el.innerHTML='';
   recordings.forEach((r,i)=>{
-    const isLocked = r.locked;
+    const url=audioURLs[r.trackIdx];
     const trackColors=['var(--amber)','var(--blue)','var(--rose)','var(--green)'];
-    // For locked songs show track dots
-    const trackDots = isLocked && r.tracks ?
-      r.tracks.map(t=>'<div style="width:8px;height:8px;border-radius:50%;background:'+trackColors[t.idx]+'"></div>').join('') : '';
-
-    el.innerHTML += '<div class="saved-item" style="flex-wrap:wrap;gap:8px;">' +
-      '<div style="display:flex;align-items:center;gap:6px;">' +
-        (isLocked ? '<span style="font-size:14px;">🔒</span>' : '<span style="font-size:14px;">🎸</span>') +
-        (trackDots ? '<div style="display:flex;gap:3px;align-items:center;">'+trackDots+'</div>' : '') +
-      '</div>' +
-      '<div style="flex:1;min-width:0;">' +
-        '<div class="saved-name">'+esc(r.name)+'</div>' +
-        '<div class="saved-meta">'+(isLocked ? (r.trackCount||1)+' track'+(r.trackCount!==1?'s':'')+' · ' : '')+(r.dur||'')+(r.dur?' · ':'')+r.date+'</div>' +
-      '</div>' +
-      (isLocked && r.tracks ? '<button onclick="playLockedIdea('+i+')" class="t-btn" title="Play">▶</button>' : '') +
-      '<button onclick="deleteRecording('+i+')" class="t-btn" style="color:var(--rose);" title="Delete">&#x2715;</button>' +
+    const col=trackColors[r.trackIdx]||'var(--amber)';
+    el.innerHTML+='<div class="saved-item">'+
+      '<div style="width:4px;height:36px;border-radius:2px;background:'+col+';flex-shrink:0"></div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div class="saved-name">'+esc(r.name)+'</div>'+
+        '<div class="saved-meta">'+r.dur+' &middot; Track '+(r.trackIdx+1)+' &middot; '+r.date+'</div>'+
+      '</div>'+
+      (url?'<audio controls src="'+url+'" style="height:28px;max-width:120px;"></audio>':'')+
+      '<button onclick="deleteRecording('+i+')" style="background:var(--rose-dim);color:var(--rose);border:1px solid var(--rose);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-family:Inter,sans-serif;flex-shrink:0;">&#x2715;</button>'+
     '</div>';
   });
 }
 
-function playLockedIdea(idx){
-  const r = recordings[idx];
-  if(!r||!r.tracks) return;
-  // Play all tracks that still have URLs in memory
-  const ctx = new (window.AudioContext||window.webkitAudioContext)();
-  const startTime = ctx.currentTime + 0.05;
-  r.tracks.forEach(t=>{
-    if(!t.url) return; // URL lost on reload - expected
-    fetch(t.url)
-      .then(res=>res.arrayBuffer())
-      .then(buf=>ctx.decodeAudioData(buf))
-      .then(decoded=>{
-        const src=ctx.createBufferSource();
-        src.buffer=decoded; src.connect(ctx.destination); src.start(startTime);
-      }).catch(()=>{});
-  });
-  document.getElementById('rec-status').textContent = 'Playing "'+esc(r.name)+'"…';
-  document.getElementById('rec-status').style.color = 'var(--text2)';
-}
-
 function deleteRecording(idx){
-  if(!confirm('Delete "'+recordings[idx].name+'"?')) return;
+  if(!confirm('Delete this recording?')) return;
+  const trackIdx=recordings[idx].trackIdx;
   recordings.splice(idx,1);
-  localStorage.setItem('fb_recs',JSON.stringify(recordings.map(r=>({...r,tracks:r.tracks?r.tracks.map(t=>({...t,url:null})):null}))));
+  // Clear the audio URL for that track slot if no other recording uses it
+  const stillUsed=recordings.some(r=>r.trackIdx===trackIdx);
+  if(!stillUsed){
+    audioURLs[trackIdx]=null;
+    audioBlobs[trackIdx]=null;
+    document.getElementById('dur-'+trackIdx).textContent='0:00';
+    initWaveforms();
+  }
+  localStorage.setItem('fb_recs',JSON.stringify(recordings.map(r=>({...r,url:null}))));
   renderRecordings();
   updateInsights();
+}
+
+// ── INSIGHTS ──────────────────────────────────────────────────────────────────
+function updateInsights(){
+  document.getElementById('ins-ideas').textContent=ideas.length;
+  document.getElementById('ins-recs').textContent=recordings.length;
+  document.getElementById('s-ideas').textContent=ideas.length;
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function switchTab(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function fmtMs(ms){const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+(s%60).toString().padStart(2,'0');}
+function fmtSec(s){return Math.floor(s/60)+':'+(s%60).toString().padStart(2,'0');}
+function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function timeAgo(date){
+  const diff=Math.floor((Date.now()-date)/1000);
+  if(diff<60)return 'just now';
+  if(diff<3600)return Math.floor(diff/60)+'m ago';
+  if(diff<86400)return Math.floor(diff/3600)+'h ago';
+  return Math.floor(diff/86400)+'d ago';
+}
+
+
+// ── GEAR ─────────────────────────────────────────────────────────────────────
+let guitars = JSON.parse(localStorage.getItem('fb_guitars')||'[]');
+
+const SPECS_DB = {
+  'fender telecaster': {Body:'Alder or Ash',Neck:'Maple',Scale:'25.5"',Pickups:'2x Single-coil',Bridge:'6-saddle string-through',Controls:'Volume, Tone, 3-way switch',Weight:'~3.5kg',Origin:'Fullerton CA, 1950'},
+  'fender stratocaster': {Body:'Alder',Neck:'Maple',Scale:'25.5"',Pickups:'3x Single-coil',Bridge:'Synchronized tremolo',Controls:'Volume, 2x Tone, 5-way switch',Weight:'~3.6kg',Origin:'Fullerton CA, 1954'},
+  'gibson les paul': {Body:'Mahogany + Maple top',Neck:'Mahogany',Scale:'24.75"',Pickups:'2x Humbucker',Bridge:'Tune-o-matic + stopbar',Controls:'2x Volume, 2x Tone, 3-way switch',Weight:'~4.0kg',Origin:'Kalamazoo MI, 1952'},
+  'gibson sg': {Body:'Mahogany',Neck:'Mahogany',Scale:'24.75"',Pickups:'2x Humbucker',Bridge:'Tune-o-matic + stopbar',Controls:'2x Volume, 2x Tone, 3-way switch',Weight:'~2.8kg',Origin:'Kalamazoo MI, 1961'},
+  'gibson es-335': {Body:'Semi-hollow Maple',Neck:'Mahogany',Scale:'24.75"',Pickups:'2x Humbucker',Bridge:'Tune-o-matic',Controls:'2x Volume, 2x Tone, 3-way switch',Weight:'~3.4kg',Origin:'Kalamazoo MI, 1958'},
+  'martin d-28': {Body:'Sitka Spruce / Rosewood',Neck:'Select Hardwood',Scale:'25.4"',Pickups:'None',Bridge:'Ebony belly bridge',Controls:'N/A',Weight:'~2.0kg',Origin:'Nazareth PA, 1931'},
+  'taylor 814ce': {Body:'Sitka Spruce / Rosewood',Neck:'Taylor neck',Scale:'25.5"',Pickups:'Expression System 2',Bridge:'Ebony',Controls:'Volume, Tone, Tuner',Weight:'~2.1kg',Origin:'El Cajon CA'},
+  'prs custom 24': {Body:'Mahogany + Maple top',Neck:'Mahogany',Scale:'25"',Pickups:'2x Humbucker',Bridge:'PRS tremolo',Controls:'Volume, Tone, 3-way toggle',Weight:'~3.4kg',Origin:'Stevensville MD, 1985'},
+  'rickenbacker 360': {Body:'Maple semi-hollow',Neck:'Maple',Scale:'24.75"',Pickups:'2x Hi-Gain single coil',Bridge:'R tailpiece',Controls:'2x Volume, 2x Tone, 5-way',Weight:'~3.2kg',Origin:'Santa Ana CA, 1958'},
+};
+
+function getSpecs(model) {
+  const key = model.toLowerCase();
+  for (const [k, v] of Object.entries(SPECS_DB)) {
+    if (key.includes(k) || k.split(' ').every(w => key.includes(w))) return v;
+  }
+  return null;
+}
+
+// Curated guitar image map - Wikipedia Commons direct image URLs
+const GUITAR_IMG_MAP = {
+  'telecaster':   'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80',
+  'stratocaster': 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80',
+  'les paul':     'https://images.unsplash.com/photo-1525201548942-d8732f6617a0?w=400&q=80',
+  'sg':           'https://images.unsplash.com/photo-1564186763535-ebb21ef5277f?w=400&q=80',
+  'es-335':       'https://images.unsplash.com/photo-1564186763535-ebb21ef5277f?w=400&q=80',
+  'es335':        'https://images.unsplash.com/photo-1564186763535-ebb21ef5277f?w=400&q=80',
+  'jazzmaster':   'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80',
+  'jaguar':       'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80',
+  'mustang':      'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80',
+  'rickenbacker': 'https://images.unsplash.com/photo-1564186763535-ebb21ef5277f?w=400&q=80',
+  'prs':          'https://images.unsplash.com/photo-1525201548942-d8732f6617a0?w=400&q=80',
+  'martin':       'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80',
+  'taylor':       'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80',
+  'dreadnought':  'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80',
+  'acoustic':     'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80',
+  'flying v':     'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80',
+  'bass':         'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&q=80',
+  'fender':       'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80',
+  'gibson':       'https://images.unsplash.com/photo-1525201548942-d8732f6617a0?w=400&q=80',
+  'electric':     'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80',
+};
+
+function getWikiImage(model, callback){
+  const key = model.toLowerCase();
+  // Check curated map - try longest match first
+  const keys = Object.keys(GUITAR_IMG_MAP).sort((a,b)=>b.length-a.length);
+  for(const k of keys){
+    if(key.includes(k.trim())){
+      callback(GUITAR_IMG_MAP[k]);
+      return;
+    }
+  }
+  // No match found - use a generic guitar image
+  callback('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80');
+}
+
+function renderGearCarousel() {
+  const el = document.getElementById('gear-carousel');
+  if (!el) return;
+  const count = document.getElementById('gear-count');
+  if (count) count.textContent = guitars.length + ' guitar' + (guitars.length !== 1 ? 's' : '');
+  el.innerHTML = '';
+  guitars.forEach((g, i) => {
+    const div = document.createElement('div');
+    div.className = 'gear-card';
+    div.onclick = () => openGearDetail(i);
+    div.innerHTML = '<div class="gear-img-placeholder" id="gear-thumb-'+i+'">&#127928;</div>' +
+      '<div class="gear-info"><div class="gear-name">' + esc(g.model) + '</div>' +
+      '<div class="gear-meta">' + (g.year ? g.year + ' · ' : '') + esc(g.colour||'') + '</div>' +
+      '<div class="gear-meta" style="color:var(--amber);margin-top:3px">' + esc(g.type) + '</div></div>';
+    el.appendChild(div);
+    // Try to load image from Wikipedia
+    if(g.wikiImg){
+      loadGearThumb(i, g.wikiImg);
+    } else {
+      getWikiImage(g.model, (url)=>{
+        if(url){
+          guitars[i].wikiImg = url;
+          localStorage.setItem('fb_guitars', JSON.stringify(guitars));
+          loadGearThumb(i, url);
+        }
+      });
+    }
+  });
+  const addCard = document.createElement('div');
+  addCard.className = 'gear-card add-card';
+  addCard.onclick = openAddGear;
+  addCard.innerHTML = '<div style="font-size:36px;color:var(--amber)">+</div><div style="font-size:13px;font-weight:600;color:var(--text2)">Add a guitar</div>';
+  el.appendChild(addCard);
+}
+
+function loadGearThumb(i, url){
+  const el = document.getElementById('gear-thumb-'+i);
+  if(!el) return;
+  const img = document.createElement('img');
+  img.className = 'gear-img';
+  img.src = url;
+  img.alt = guitars[i]?.model||'';
+  img.onerror = ()=>{}; // keep emoji if image fails
+  el.replaceWith(img);
+}
+
+function openAddGear() {
+  ['g-model','g-year','g-colour','g-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('g-type').value = 'Electric';
+  document.getElementById('gear-add-modal').style.display = 'flex';
+}
+
+function saveGear() {
+  const model = document.getElementById('g-model').value.trim();
+  if (!model) { alert('Please enter a make & model'); return; }
+  const guitar = {
+    model,
+    year: document.getElementById('g-year').value.trim(),
+    colour: document.getElementById('g-colour').value.trim(),
+    type: document.getElementById('g-type').value,
+    notes: document.getElementById('g-notes').value.trim(),
+    added: new Date().toLocaleDateString('en-GB')
+  };
+  guitars.push(guitar);
+  localStorage.setItem('fb_guitars', JSON.stringify(guitars));
+  closeGearModal('gear-add-modal');
+  renderGearCarousel();
+  openGearDetail(guitars.length - 1);
+}
+
+function openGearDetail(idx) {
+  const g = guitars[idx];
+  const specs = getSpecs(g.model);
+  const searchUrl = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(g.model + ' ' + (g.year||'') + ' ' + (g.colour||'') + ' guitar');
+
+  let h = '<div style="font-family:Playfair Display,serif;font-size:22px;font-weight:700;margin-bottom:4px;">' + esc(g.model) + '</div>';
+  h += '<div style="font-size:12px;color:var(--text3);margin-bottom:20px;">' + [g.year, g.colour, g.type].filter(Boolean).join(' · ') + '</div>';
+  h += '<div class="gear-detail-img" onclick="window.open(this.dataset.url,\'_blank\')" data-url="' + searchUrl.replace(/"/g,'&quot;') + '" title="Click to search images" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">' +
+    '<div style="font-size:64px">&#127928;</div>' +
+    '<div style="font-size:12px;color:var(--amber)">Tap to search images on Google</div></div>';
+
+  if (specs) {
+    h += '<div style="font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;margin-top:4px;">Specs</div>';
+    h += '<div class="gear-spec-grid">';
+    Object.entries(specs).forEach(([label, val]) => {
+      h += '<div class="gear-spec"><div class="gear-spec-label">' + label + '</div><div class="gear-spec-val">' + val + '</div></div>';
+    });
+    h += '</div>';
+  } else {
+    h += '<div style="background:var(--surface3);border-radius:var(--radius-sm);padding:16px;text-align:center;margin-top:8px;font-size:13px;color:var(--text3);">Specs not on file for this model — tap the image above to search.</div>';
+  }
+
+  if (g.notes) {
+    h += '<div style="margin-top:16px;padding:14px;background:var(--amber-dim);border:1px solid rgba(245,166,35,.2);border-radius:var(--radius-sm);">' +
+      '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--amber);margin-bottom:6px;">Notes</div>' +
+      '<div style="font-size:13px;color:var(--text2);">' + esc(g.notes) + '</div></div>';
+  }
+
+  h += '<div class="gear-btn-row"><button class="gear-del-btn" onclick="deleteGear(' + idx + ')">Remove</button>' +
+    '<div style="flex:1"></div><div style="font-size:11px;color:var(--text3);align-self:center;">Added ' + g.added + '</div></div>';
+
+  document.getElementById('gear-detail-content').innerHTML = h;
+  document.getElementById('gear-detail-modal').style.display = 'flex';
+}
+
+function deleteGear(idx) {
+  if (!confirm('Remove this guitar?')) return;
+  guitars.splice(idx, 1);
+  localStorage.setItem('fb_guitars', JSON.stringify(guitars));
+  closeGearModal('gear-detail-modal');
+  renderGearCarousel();
+}
+
+function closeGearModal(id) {
+  document.getElementById(id).style.display = 'none';
 }
 
 
@@ -1454,7 +1473,7 @@ function showInsightDetail(type){
         const img=a.images?.[0]?.url;
         h+='<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface3);border-radius:8px;">'+
           '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--text3);min-width:18px">'+(i+1)+'</span>'+
-          (img?'<img src="'+img+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover">':'<div style="width:40px;height:40px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center">🎵</div>')+
+          (img?'<img src="'+img+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover">':'<div style="width:40px;height:40px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center">&#127925;</div>')+
           '<div style="flex:1"><div style="font-size:13px;font-weight:500">'+esc(a.name)+'</div>'+
           '<div style="font-size:11px;color:var(--text3)">'+(a.genres?.slice(0,2).join(', ')||'')+'</div></div>'+
           '<div style="font-size:11px;color:var(--amber)">'+a.popularity+'% pop</div>'+
